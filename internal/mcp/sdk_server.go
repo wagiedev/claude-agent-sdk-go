@@ -100,6 +100,17 @@ func (s *SDKServer) ListTools() []map[string]any {
 			}
 		}
 
+		// Convert Annotations to map[string]any for the control protocol
+		if t.tool.Annotations != nil {
+			annotData, err := json.Marshal(t.tool.Annotations)
+			if err == nil {
+				var annotMap map[string]any
+				if json.Unmarshal(annotData, &annotMap) == nil {
+					toolMap["annotations"] = annotMap
+				}
+			}
+		}
+
 		result = append(result, toolMap)
 	}
 

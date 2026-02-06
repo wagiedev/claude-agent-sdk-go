@@ -38,6 +38,7 @@ func CreateSdkMcpServer(name, version string, tools ...*SdkMcpTool) *MCPSdkServe
 
 	for _, tool := range tools {
 		mcpTool := internalmcp.NewTool(tool.ToolName, tool.ToolDescription, tool.ToolSchema)
+		mcpTool.Annotations = tool.ToolAnnotations
 		server.AddTool(mcpTool, tool.ToolHandler)
 	}
 

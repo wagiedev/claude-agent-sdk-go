@@ -35,6 +35,11 @@ type (
 	// McpToolHandler is the function signature for low-level tool handlers.
 	McpToolHandler = mcp.ToolHandler
 
+	// McpToolAnnotations describes optional hints about tool behavior.
+	// Fields include ReadOnlyHint, DestructiveHint, IdempotentHint,
+	// OpenWorldHint, and Title.
+	McpToolAnnotations = mcp.ToolAnnotations
+
 	// Schema is a JSON Schema object for tool input validation.
 	Schema = jsonschema.Schema
 )
@@ -57,12 +62,25 @@ type (
 //	}
 type SdkMcpToolHandler = mcp.ToolHandler
 
+// SdkMcpToolOption configures an SdkMcpTool during construction.
+type SdkMcpToolOption func(*SdkMcpTool)
+
+// WithAnnotations sets MCP tool annotations (hints about tool behavior).
+// Annotations describe properties like whether a tool is read-only,
+// destructive, idempotent, or operates in an open world.
+func WithAnnotations(annotations *mcp.ToolAnnotations) SdkMcpToolOption {
+	return func(t *SdkMcpTool) {
+		t.ToolAnnotations = annotations
+	}
+}
+
 // SdkMcpTool represents a tool created with NewSdkMcpTool.
 type SdkMcpTool struct {
 	ToolName        string
 	ToolDescription string
 	ToolSchema      *jsonschema.Schema
 	ToolHandler     SdkMcpToolHandler
+	ToolAnnotations *mcp.ToolAnnotations
 }
 
 // Name returns the tool name.
@@ -85,10 +103,17 @@ func (t *SdkMcpTool) Handler() SdkMcpToolHandler {
 	return t.ToolHandler
 }
 
-// NewSdkMcpTool creates an SdkMcpTool.
+// Annotations returns the tool annotations, or nil if not set.
+func (t *SdkMcpTool) Annotations() *mcp.ToolAnnotations {
+	return t.ToolAnnotations
+}
+
+// NewSdkMcpTool creates an SdkMcpTool with optional configuration.
 //
 // The inputSchema should be a *jsonschema.Schema. Use SimpleSchema for convenience
 // or create a full Schema struct for more control.
+//
+// Use WithAnnotations to set MCP tool annotations (hints about tool behavior).
 //
 // Example with SimpleSchema:
 //
@@ -99,18 +124,28 @@ func (t *SdkMcpTool) Handler() SdkMcpToolHandler {
 //	        a, b := args["a"].(float64), args["b"].(float64)
 //	        return claudesdk.TextResult(fmt.Sprintf("Result: %v", a+b)), nil
 //	    },
+//	    claudesdk.WithAnnotations(&claudesdk.McpToolAnnotations{
+//	        ReadOnlyHint: true,
+//	    }),
 //	)
 func NewSdkMcpTool(
 	name, description string,
 	inputSchema *jsonschema.Schema,
 	handler SdkMcpToolHandler,
+	opts ...SdkMcpToolOption,
 ) *SdkMcpTool {
-	return &SdkMcpTool{
+	t := &SdkMcpTool{
 		ToolName:        name,
 		ToolDescription: description,
 		ToolSchema:      inputSchema,
 		ToolHandler:     handler,
 	}
+
+	for _, opt := range opts {
+		opt(t)
+	}
+
+	return t
 }
 
 // SimpleSchema creates a jsonschema.Schema from a simple type map.

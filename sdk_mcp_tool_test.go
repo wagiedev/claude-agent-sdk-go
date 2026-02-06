@@ -166,6 +166,43 @@ func TestParseArguments(t *testing.T) {
 	})
 }
 
+func TestSdkMcpToolWithAnnotations(t *testing.T) {
+	annotations := &mcp.ToolAnnotations{
+		ReadOnlyHint:   true,
+		IdempotentHint: true,
+		Title:          "My Tool",
+	}
+
+	tool := NewSdkMcpTool(
+		"annotated_tool",
+		"A tool with annotations",
+		SimpleSchema(map[string]string{"value": "string"}),
+		func(_ context.Context, _ *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			return TextResult("ok"), nil
+		},
+		WithAnnotations(annotations),
+	)
+
+	assert.Equal(t, "annotated_tool", tool.Name())
+	require.NotNil(t, tool.Annotations())
+	assert.True(t, tool.Annotations().ReadOnlyHint)
+	assert.True(t, tool.Annotations().IdempotentHint)
+	assert.Equal(t, "My Tool", tool.Annotations().Title)
+}
+
+func TestSdkMcpToolWithoutAnnotations(t *testing.T) {
+	tool := NewSdkMcpTool(
+		"plain_tool",
+		"A tool without annotations",
+		SimpleSchema(map[string]string{"value": "string"}),
+		func(_ context.Context, _ *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			return TextResult("ok"), nil
+		},
+	)
+
+	assert.Nil(t, tool.Annotations())
+}
+
 func TestCreateSdkMcpServer(t *testing.T) {
 	tool := NewSdkMcpTool(
 		"test_tool",
@@ -181,4 +218,68 @@ func TestCreateSdkMcpServer(t *testing.T) {
 	assert.Equal(t, MCPServerTypeSDK, config.Type)
 	assert.Equal(t, "test_server", config.Name)
 	assert.NotNil(t, config.Instance)
+}
+
+func TestCreateSdkMcpServerWithAnnotations(t *testing.T) {
+	boolPtr := func(b bool) *bool { return &b }
+
+	tool := NewSdkMcpTool(
+		"read_data",
+		"Read data from source",
+		SimpleSchema(map[string]string{"key": "string"}),
+		func(_ context.Context, _ *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			return TextResult("data"), nil
+		},
+		WithAnnotations(&mcp.ToolAnnotations{
+			ReadOnlyHint:    true,
+			DestructiveHint: boolPtr(false),
+			IdempotentHint:  true,
+		}),
+	)
+
+	config := CreateSdkMcpServer("test_server", "1.0.0", tool)
+	require.NotNil(t, config.Instance)
+
+	server, ok := config.Instance.(SdkMcpServerInstance)
+	require.True(t, ok)
+
+	tools := server.ListTools()
+	require.Len(t, tools, 1)
+
+	toolMap := tools[0]
+	assert.Equal(t, "read_data", toolMap["name"])
+
+	annotations, ok := toolMap["annotations"].(map[string]any)
+	require.True(t, ok, "annotations should be present as map[string]any")
+	assert.Equal(t, true, annotations["readOnlyHint"])
+	assert.Equal(t, false, annotations["destructiveHint"])
+	assert.Equal(t, true, annotations["idempotentHint"])
+
+	// Fields with zero values and no omitempty pointer should still appear
+	// but openWorldHint (nil *bool) should be absent
+	_, hasOpenWorld := annotations["openWorldHint"]
+	assert.False(t, hasOpenWorld, "nil openWorldHint should be omitted")
+}
+
+func TestCreateSdkMcpServerWithoutAnnotations(t *testing.T) {
+	tool := NewSdkMcpTool(
+		"simple_tool",
+		"A simple tool",
+		SimpleSchema(map[string]string{"value": "string"}),
+		func(_ context.Context, _ *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			return TextResult("ok"), nil
+		},
+	)
+
+	config := CreateSdkMcpServer("test_server", "1.0.0", tool)
+	require.NotNil(t, config.Instance)
+
+	server, ok := config.Instance.(SdkMcpServerInstance)
+	require.True(t, ok)
+
+	tools := server.ListTools()
+	require.Len(t, tools, 1)
+
+	_, hasAnnotations := tools[0]["annotations"]
+	assert.False(t, hasAnnotations, "annotations key should be absent when nil")
 }

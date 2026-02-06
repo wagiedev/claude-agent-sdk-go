@@ -13,10 +13,17 @@ import (
 	"time"
 
 	claudesdk "github.com/Savid/claude-agent-sdk-go"
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 // createCalculatorTools creates the 6 calculator tools: add, subtract, multiply, divide, sqrt, power.
 func createCalculatorTools() []*claudesdk.SdkMcpTool {
+	// Annotations shared by all calculator tools: read-only and idempotent.
+	calcAnnotations := &mcp.ToolAnnotations{
+		ReadOnlyHint:   true,
+		IdempotentHint: true,
+	}
+
 	// Add tool - using simple type schema
 	addTool := claudesdk.NewSdkMcpTool(
 		"add",
@@ -34,6 +41,7 @@ func createCalculatorTools() []*claudesdk.SdkMcpTool {
 
 			return claudesdk.TextResult(fmt.Sprintf("%v + %v = %v", a, b, result)), nil
 		},
+		claudesdk.WithAnnotations(calcAnnotations),
 	)
 
 	// Subtract tool
@@ -53,6 +61,7 @@ func createCalculatorTools() []*claudesdk.SdkMcpTool {
 
 			return claudesdk.TextResult(fmt.Sprintf("%v - %v = %v", a, b, result)), nil
 		},
+		claudesdk.WithAnnotations(calcAnnotations),
 	)
 
 	// Multiply tool
@@ -72,6 +81,7 @@ func createCalculatorTools() []*claudesdk.SdkMcpTool {
 
 			return claudesdk.TextResult(fmt.Sprintf("%v × %v = %v", a, b, result)), nil
 		},
+		claudesdk.WithAnnotations(calcAnnotations),
 	)
 
 	// Divide tool
@@ -96,6 +106,7 @@ func createCalculatorTools() []*claudesdk.SdkMcpTool {
 
 			return claudesdk.TextResult(fmt.Sprintf("%v ÷ %v = %v", a, b, result)), nil
 		},
+		claudesdk.WithAnnotations(calcAnnotations),
 	)
 
 	// Square root tool
@@ -121,6 +132,7 @@ func createCalculatorTools() []*claudesdk.SdkMcpTool {
 
 			return claudesdk.TextResult(fmt.Sprintf("√%v = %v", n, result)), nil
 		},
+		claudesdk.WithAnnotations(calcAnnotations),
 	)
 
 	// Power tool
@@ -140,6 +152,7 @@ func createCalculatorTools() []*claudesdk.SdkMcpTool {
 
 			return claudesdk.TextResult(fmt.Sprintf("%v^%v = %v", base, exponent, result)), nil
 		},
+		claudesdk.WithAnnotations(calcAnnotations),
 	)
 
 	return []*claudesdk.SdkMcpTool{addTool, subtractTool, multiplyTool, divideTool, sqrtTool, powerTool}

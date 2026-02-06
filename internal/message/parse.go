@@ -143,6 +143,12 @@ func parseAssistantMessage(data map[string]any) (*AssistantMessage, error) {
 		msg.ParentToolUseID = &parentToolUseID
 	}
 
+	// Parse error from outer data (not messageData) — CLI puts error at top level
+	if errorVal, ok := data["error"].(string); ok {
+		errType := AssistantMessageError(errorVal)
+		msg.Error = &errType
+	}
+
 	return msg, nil
 }
 

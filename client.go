@@ -99,6 +99,10 @@ type Client interface {
 	// Returns nil if not connected or not in streaming mode.
 	GetServerInfo() map[string]any
 
+	// GetMCPStatus queries the CLI for live MCP server connection status.
+	// Returns the status of all configured MCP servers.
+	GetMCPStatus(ctx context.Context) (*MCPStatus, error)
+
 	// RewindFiles rewinds tracked files to their state at a specific user message.
 	// The userMessageID should be the ID of a previous user message in the conversation.
 	// Requires EnableFileCheckpointing=true in ClaudeAgentOptions.

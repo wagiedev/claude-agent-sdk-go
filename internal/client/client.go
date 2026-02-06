@@ -14,6 +14,7 @@ import (
 
 	"github.com/Savid/claude-agent-sdk-go/internal/config"
 	"github.com/Savid/claude-agent-sdk-go/internal/errors"
+	"github.com/Savid/claude-agent-sdk-go/internal/mcp"
 	"github.com/Savid/claude-agent-sdk-go/internal/message"
 	"github.com/Savid/claude-agent-sdk-go/internal/protocol"
 	"github.com/Savid/claude-agent-sdk-go/internal/subprocess"
@@ -34,6 +35,9 @@ const (
 
 	// setModelTimeout is the timeout for set_model control requests.
 	setModelTimeout = 5 * time.Second
+
+	// mcpStatusTimeout is the timeout for mcp_status control requests.
+	mcpStatusTimeout = 10 * time.Second
 )
 
 // Client implements the interactive client interface.
@@ -581,6 +585,35 @@ func (c *Client) SetModel(ctx context.Context, model *string) error {
 	}
 
 	return nil
+}
+
+// GetMCPStatus queries the CLI for live MCP server connection status.
+// Returns the status of all configured MCP servers.
+func (c *Client) GetMCPStatus(ctx context.Context) (*mcp.Status, error) {
+	if !c.isConnected() {
+		return nil, errors.ErrClientNotConnected
+	}
+
+	c.log.Info("Querying MCP server status")
+
+	resp, err := c.controller.SendRequest(ctx, "mcp_status", nil, mcpStatusTimeout)
+	if err != nil {
+		return nil, fmt.Errorf("get mcp status: %w", err)
+	}
+
+	payload := resp.Payload()
+
+	raw, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal mcp status payload: %w", err)
+	}
+
+	var status mcp.Status
+	if err := json.Unmarshal(raw, &status); err != nil {
+		return nil, fmt.Errorf("unmarshal mcp status: %w", err)
+	}
+
+	return &status, nil
 }
 
 // GetServerInfo returns server initialization info including available commands.

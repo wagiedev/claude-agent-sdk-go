@@ -85,6 +85,11 @@ func (c *clientWrapper) GetServerInfo() map[string]any {
 	return c.impl.GetServerInfo()
 }
 
+// GetMCPStatus queries the CLI for live MCP server connection status.
+func (c *clientWrapper) GetMCPStatus(ctx context.Context) (*MCPStatus, error) {
+	return c.impl.GetMCPStatus(ctx)
+}
+
 // RewindFiles rewinds tracked files to their state at a specific user message.
 func (c *clientWrapper) RewindFiles(ctx context.Context, userMessageID string) error {
 	return c.impl.RewindFiles(ctx, userMessageID)

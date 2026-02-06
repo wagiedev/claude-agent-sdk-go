@@ -594,6 +594,20 @@ func TestClient_ReceiveResponseIterator(t *testing.T) {
 	})
 }
 
+// TestClient_GetMCPStatusNotConnected tests GetMCPStatus when not connected.
+func TestClient_GetMCPStatusNotConnected(t *testing.T) {
+	client := NewClient()
+	defer client.Close()
+
+	ctx := context.Background()
+
+	status, err := client.GetMCPStatus(ctx)
+
+	require.Error(t, err)
+	require.Nil(t, status)
+	require.Contains(t, err.Error(), "not connected")
+}
+
 // TestClient_RewindFilesNotConnected tests RewindFiles when not connected.
 func TestClient_RewindFilesNotConnected(t *testing.T) {
 	client := NewClient()
@@ -1640,6 +1654,12 @@ func TestClient_OperationsAfterCloseReturnError(t *testing.T) {
 	// RewindFiles should fail
 	err = client.RewindFiles(ctx, "msg_123")
 	require.Error(t, err)
+	require.Contains(t, err.Error(), "not connected")
+
+	// GetMCPStatus should fail
+	status, err := client.GetMCPStatus(ctx)
+	require.Error(t, err)
+	require.Nil(t, status)
 	require.Contains(t, err.Error(), "not connected")
 
 	// GetServerInfo should return nil

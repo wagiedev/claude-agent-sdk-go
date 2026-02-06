@@ -352,6 +352,14 @@ type MCPSdkServerConfig = mcp.SdkServerConfig
 // SdkMcpServerInstance is the interface that SDK MCP servers must implement.
 type SdkMcpServerInstance = mcp.ServerInstance
 
+// ===== MCP Status =====
+
+// MCPServerStatus represents the connection status of a single MCP server.
+type MCPServerStatus = mcp.ServerStatus
+
+// MCPStatus represents the connection status of all configured MCP servers.
+type MCPStatus = mcp.Status
+
 // ===== Sandbox Configuration =====
 
 // SandboxNetworkConfig configures network access for the sandbox.

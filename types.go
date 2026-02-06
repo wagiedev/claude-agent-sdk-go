@@ -149,6 +149,14 @@ const (
 	HookEventSubagentStop = hook.EventSubagentStop
 	// HookEventPreCompact is triggered before compaction.
 	HookEventPreCompact = hook.EventPreCompact
+	// HookEventPostToolUseFailure is triggered after a tool use fails.
+	HookEventPostToolUseFailure = hook.EventPostToolUseFailure
+	// HookEventNotification is triggered when a notification is sent.
+	HookEventNotification = hook.EventNotification
+	// HookEventSubagentStart is triggered when a subagent starts.
+	HookEventSubagentStart = hook.EventSubagentStart
+	// HookEventPermissionRequest is triggered when a permission is requested.
+	HookEventPermissionRequest = hook.EventPermissionRequest
 )
 
 // HookInput is the interface for all hook input types.
@@ -175,6 +183,18 @@ type SubagentStopHookInput = hook.SubagentStopInput
 // PreCompactHookInput is the input for PreCompact hooks.
 type PreCompactHookInput = hook.PreCompactInput
 
+// PostToolUseFailureHookInput is the input for PostToolUseFailure hooks.
+type PostToolUseFailureHookInput = hook.PostToolUseFailureInput
+
+// NotificationHookInput is the input for Notification hooks.
+type NotificationHookInput = hook.NotificationInput
+
+// SubagentStartHookInput is the input for SubagentStart hooks.
+type SubagentStartHookInput = hook.SubagentStartInput
+
+// PermissionRequestHookInput is the input for PermissionRequest hooks.
+type PermissionRequestHookInput = hook.PermissionRequestInput
+
 // HookJSONOutput is the interface for hook output types.
 type HookJSONOutput = hook.JSONOutput
 
@@ -195,6 +215,18 @@ type PostToolUseHookSpecificOutput = hook.PostToolUseSpecificOutput
 
 // UserPromptSubmitHookSpecificOutput is the hook-specific output for UserPromptSubmit.
 type UserPromptSubmitHookSpecificOutput = hook.UserPromptSubmitSpecificOutput
+
+// PostToolUseFailureHookSpecificOutput is the hook-specific output for PostToolUseFailure.
+type PostToolUseFailureHookSpecificOutput = hook.PostToolUseFailureSpecificOutput
+
+// NotificationHookSpecificOutput is the hook-specific output for Notification.
+type NotificationHookSpecificOutput = hook.NotificationSpecificOutput
+
+// SubagentStartHookSpecificOutput is the hook-specific output for SubagentStart.
+type SubagentStartHookSpecificOutput = hook.SubagentStartSpecificOutput
+
+// PermissionRequestHookSpecificOutput is the hook-specific output for PermissionRequest.
+type PermissionRequestHookSpecificOutput = hook.PermissionRequestSpecificOutput
 
 // HookContext provides context for hook execution.
 type HookContext = hook.Context

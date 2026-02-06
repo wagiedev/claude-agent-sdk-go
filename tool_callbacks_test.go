@@ -397,6 +397,282 @@ func TestMatcherMatching(t *testing.T) {
 	require.Equal(t, "Bash", *matcher.Matcher)
 }
 
+// TestNewHookInputTypes tests construction and field access for new hook input types.
+func TestNewHookInputTypes(t *testing.T) {
+	t.Run("PostToolUseFailureInput", func(t *testing.T) {
+		isInterrupt := true
+		input := &PostToolUseFailureHookInput{
+			BaseInput:     BaseHookInput{SessionID: "s1", Cwd: "/tmp"},
+			HookEventName: "PostToolUseFailure",
+			ToolName:      "Bash",
+			ToolInput:     map[string]any{"command": "bad"},
+			ToolUseID:     "tu_123",
+			Error:         "command failed",
+			IsInterrupt:   &isInterrupt,
+		}
+
+		require.Equal(t, HookEventPostToolUseFailure, input.GetHookEventName())
+		require.Equal(t, "s1", input.GetSessionID())
+		require.Equal(t, "Bash", input.ToolName)
+		require.Equal(t, "tu_123", input.ToolUseID)
+		require.Equal(t, "command failed", input.Error)
+		require.NotNil(t, input.IsInterrupt)
+		require.True(t, *input.IsInterrupt)
+	})
+
+	t.Run("NotificationInput", func(t *testing.T) {
+		title := "Alert"
+		input := &NotificationHookInput{
+			BaseInput:        BaseHookInput{SessionID: "s2"},
+			HookEventName:    "Notification",
+			Message:          "Something happened",
+			Title:            &title,
+			NotificationType: "info",
+		}
+
+		require.Equal(t, HookEventNotification, input.GetHookEventName())
+		require.Equal(t, "Something happened", input.Message)
+		require.NotNil(t, input.Title)
+		require.Equal(t, "Alert", *input.Title)
+		require.Equal(t, "info", input.NotificationType)
+	})
+
+	t.Run("SubagentStartInput", func(t *testing.T) {
+		input := &SubagentStartHookInput{
+			BaseInput:     BaseHookInput{SessionID: "s3"},
+			HookEventName: "SubagentStart",
+			AgentID:       "agent_1",
+			AgentType:     "Explore",
+		}
+
+		require.Equal(t, HookEventSubagentStart, input.GetHookEventName())
+		require.Equal(t, "agent_1", input.AgentID)
+		require.Equal(t, "Explore", input.AgentType)
+	})
+
+	t.Run("PermissionRequestInput", func(t *testing.T) {
+		input := &PermissionRequestHookInput{
+			BaseInput:             BaseHookInput{SessionID: "s4"},
+			HookEventName:         "PermissionRequest",
+			ToolName:              "Write",
+			ToolInput:             map[string]any{"path": "/etc/hosts"},
+			PermissionSuggestions: []any{"allow", "deny"},
+		}
+
+		require.Equal(t, HookEventPermissionRequest, input.GetHookEventName())
+		require.Equal(t, "Write", input.ToolName)
+		require.Len(t, input.PermissionSuggestions, 2)
+	})
+
+	t.Run("enhanced PreToolUseInput has ToolUseID", func(t *testing.T) {
+		input := &PreToolUseHookInput{
+			BaseInput: BaseHookInput{SessionID: "s5"},
+			ToolName:  "Bash",
+			ToolUseID: "tu_456",
+		}
+
+		require.Equal(t, "tu_456", input.ToolUseID)
+	})
+
+	t.Run("enhanced PostToolUseInput has ToolUseID", func(t *testing.T) {
+		input := &PostToolUseHookInput{
+			BaseInput: BaseHookInput{SessionID: "s6"},
+			ToolName:  "Bash",
+			ToolUseID: "tu_789",
+		}
+
+		require.Equal(t, "tu_789", input.ToolUseID)
+	})
+
+	t.Run("enhanced SubagentStopInput has agent fields", func(t *testing.T) {
+		input := &SubagentStopHookInput{
+			BaseInput:           BaseHookInput{SessionID: "s7"},
+			AgentID:             "agent_2",
+			AgentTranscriptPath: "/tmp/transcript.json",
+			AgentType:           "Plan",
+		}
+
+		require.Equal(t, "agent_2", input.AgentID)
+		require.Equal(t, "/tmp/transcript.json", input.AgentTranscriptPath)
+		require.Equal(t, "Plan", input.AgentType)
+	})
+}
+
+// TestNewHookSpecificOutputJSONSerialization tests JSON serialization of new specific output types.
+func TestNewHookSpecificOutputJSONSerialization(t *testing.T) {
+	t.Run("PostToolUseFailureSpecificOutput", func(t *testing.T) {
+		ctx := stringPtr("Extra context about the failure")
+		output := &PostToolUseFailureHookSpecificOutput{
+			HookEventName:     "PostToolUseFailure",
+			AdditionalContext: ctx,
+		}
+
+		data, err := json.Marshal(output)
+		require.NoError(t, err)
+
+		jsonStr := string(data)
+		require.Contains(t, jsonStr, `"hookEventName":"PostToolUseFailure"`)
+		require.Contains(t, jsonStr, `"additionalContext":"Extra context about the failure"`)
+	})
+
+	t.Run("PostToolUseFailureSpecificOutput omitempty", func(t *testing.T) {
+		output := &PostToolUseFailureHookSpecificOutput{
+			HookEventName: "PostToolUseFailure",
+		}
+
+		data, err := json.Marshal(output)
+		require.NoError(t, err)
+		require.NotContains(t, string(data), `"additionalContext"`)
+	})
+
+	t.Run("NotificationSpecificOutput", func(t *testing.T) {
+		ctx := stringPtr("Notification context")
+		output := &NotificationHookSpecificOutput{
+			HookEventName:     "Notification",
+			AdditionalContext: ctx,
+		}
+
+		data, err := json.Marshal(output)
+		require.NoError(t, err)
+
+		jsonStr := string(data)
+		require.Contains(t, jsonStr, `"hookEventName":"Notification"`)
+		require.Contains(t, jsonStr, `"additionalContext":"Notification context"`)
+	})
+
+	t.Run("SubagentStartSpecificOutput", func(t *testing.T) {
+		ctx := stringPtr("Subagent context")
+		output := &SubagentStartHookSpecificOutput{
+			HookEventName:     "SubagentStart",
+			AdditionalContext: ctx,
+		}
+
+		data, err := json.Marshal(output)
+		require.NoError(t, err)
+
+		jsonStr := string(data)
+		require.Contains(t, jsonStr, `"hookEventName":"SubagentStart"`)
+		require.Contains(t, jsonStr, `"additionalContext":"Subagent context"`)
+	})
+
+	t.Run("PermissionRequestSpecificOutput", func(t *testing.T) {
+		output := &PermissionRequestHookSpecificOutput{
+			HookEventName: "PermissionRequest",
+			Decision:      map[string]any{"action": "allow", "reason": "trusted"},
+		}
+
+		data, err := json.Marshal(output)
+		require.NoError(t, err)
+
+		jsonStr := string(data)
+		require.Contains(t, jsonStr, `"hookEventName":"PermissionRequest"`)
+		require.Contains(t, jsonStr, `"decision"`)
+		require.Contains(t, jsonStr, `"action":"allow"`)
+	})
+
+	t.Run("PermissionRequestSpecificOutput omitempty", func(t *testing.T) {
+		output := &PermissionRequestHookSpecificOutput{
+			HookEventName: "PermissionRequest",
+		}
+
+		data, err := json.Marshal(output)
+		require.NoError(t, err)
+		require.NotContains(t, string(data), `"decision"`)
+	})
+
+	t.Run("PreToolUseSpecificOutput has additionalContext", func(t *testing.T) {
+		ctx := stringPtr("Pre-tool context")
+		output := &PreToolUseHookSpecificOutput{
+			HookEventName:     "PreToolUse",
+			AdditionalContext: ctx,
+		}
+
+		data, err := json.Marshal(output)
+		require.NoError(t, err)
+		require.Contains(t, string(data), `"additionalContext":"Pre-tool context"`)
+	})
+
+	t.Run("PostToolUseSpecificOutput has updatedMCPToolOutput", func(t *testing.T) {
+		output := &PostToolUseHookSpecificOutput{
+			HookEventName:        "PostToolUse",
+			UpdatedMCPToolOutput: map[string]any{"result": "modified"},
+		}
+
+		data, err := json.Marshal(output)
+		require.NoError(t, err)
+		require.Contains(t, string(data), `"updatedMCPToolOutput"`)
+	})
+}
+
+// TestNewHookEventCallbackExecution tests hook callback execution with new event types.
+func TestNewHookEventCallbackExecution(t *testing.T) {
+	tests := []struct {
+		name  string
+		input HookInput
+		event HookEvent
+	}{
+		{
+			name: "PostToolUseFailure",
+			input: &PostToolUseFailureHookInput{
+				BaseInput: BaseHookInput{SessionID: "test"},
+				ToolName:  "Bash",
+				Error:     "failed",
+			},
+			event: HookEventPostToolUseFailure,
+		},
+		{
+			name: "Notification",
+			input: &NotificationHookInput{
+				BaseInput:        BaseHookInput{SessionID: "test"},
+				Message:          "hello",
+				NotificationType: "info",
+			},
+			event: HookEventNotification,
+		},
+		{
+			name: "SubagentStart",
+			input: &SubagentStartHookInput{
+				BaseInput: BaseHookInput{SessionID: "test"},
+				AgentID:   "agent_1",
+				AgentType: "Explore",
+			},
+			event: HookEventSubagentStart,
+		},
+		{
+			name: "PermissionRequest",
+			input: &PermissionRequestHookInput{
+				BaseInput: BaseHookInput{SessionID: "test"},
+				ToolName:  "Write",
+			},
+			event: HookEventPermissionRequest,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var receivedEvent HookEvent
+
+			hookFn := func(
+				_ context.Context,
+				input HookInput,
+				_ *string,
+				_ *HookContext,
+			) (HookJSONOutput, error) {
+				receivedEvent = input.GetHookEventName()
+
+				return &SyncHookJSONOutput{}, nil
+			}
+
+			ctx := context.Background()
+
+			_, err := hookFn(ctx, tt.input, nil, nil)
+
+			require.NoError(t, err)
+			require.Equal(t, tt.event, receivedEvent)
+		})
+	}
+}
+
 // TestMultipleHooksExecuteInOrder tests multiple hooks execute in order.
 func TestMultipleHooksExecuteInOrder(t *testing.T) {
 	var order []int

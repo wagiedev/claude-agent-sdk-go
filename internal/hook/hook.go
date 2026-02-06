@@ -19,6 +19,14 @@ const (
 	EventSubagentStop Event = "SubagentStop"
 	// EventPreCompact is triggered before compaction.
 	EventPreCompact Event = "PreCompact"
+	// EventPostToolUseFailure is triggered after a tool use fails.
+	EventPostToolUseFailure Event = "PostToolUseFailure"
+	// EventNotification is triggered when a notification is sent.
+	EventNotification Event = "Notification"
+	// EventSubagentStart is triggered when a subagent starts.
+	EventSubagentStart Event = "SubagentStart"
+	// EventPermissionRequest is triggered when a permission is requested.
+	EventPermissionRequest Event = "PermissionRequest"
 )
 
 // Input is the interface for all hook input types.
@@ -38,6 +46,10 @@ var (
 	_ Input = (*StopInput)(nil)
 	_ Input = (*SubagentStopInput)(nil)
 	_ Input = (*PreCompactInput)(nil)
+	_ Input = (*PostToolUseFailureInput)(nil)
+	_ Input = (*NotificationInput)(nil)
+	_ Input = (*SubagentStartInput)(nil)
+	_ Input = (*PermissionRequestInput)(nil)
 )
 
 // BaseInput contains common fields for all hook inputs.
@@ -70,6 +82,7 @@ type PreToolUseInput struct {
 	HookEventName string         `json:"hook_event_name"`
 	ToolName      string         `json:"tool_name"`
 	ToolInput     map[string]any `json:"tool_input"`
+	ToolUseID     string         `json:"tool_use_id"`
 }
 
 // GetHookEventName implements Input.
@@ -83,6 +96,7 @@ type PostToolUseInput struct {
 	HookEventName string         `json:"hook_event_name"`
 	ToolName      string         `json:"tool_name"`
 	ToolInput     map[string]any `json:"tool_input"`
+	ToolUseID     string         `json:"tool_use_id"`
 	ToolResponse  any            `json:"tool_response"`
 }
 
@@ -120,12 +134,72 @@ func (s *StopInput) GetHookEventName() Event { return EventStop }
 //nolint:tagliatelle // Claude CLI uses snake_case
 type SubagentStopInput struct {
 	BaseInput
-	HookEventName  string `json:"hook_event_name"`
-	StopHookActive bool   `json:"stop_hook_active"`
+	HookEventName       string `json:"hook_event_name"`
+	StopHookActive      bool   `json:"stop_hook_active"`
+	AgentID             string `json:"agent_id"`
+	AgentTranscriptPath string `json:"agent_transcript_path"`
+	AgentType           string `json:"agent_type"`
 }
 
 // GetHookEventName implements Input.
 func (s *SubagentStopInput) GetHookEventName() Event { return EventSubagentStop }
+
+// PostToolUseFailureInput is the input for PostToolUseFailure hooks.
+//
+//nolint:tagliatelle // Claude CLI uses snake_case
+type PostToolUseFailureInput struct {
+	BaseInput
+	HookEventName string         `json:"hook_event_name"`
+	ToolName      string         `json:"tool_name"`
+	ToolInput     map[string]any `json:"tool_input"`
+	ToolUseID     string         `json:"tool_use_id"`
+	Error         string         `json:"error"`
+	IsInterrupt   *bool          `json:"is_interrupt,omitempty"`
+}
+
+// GetHookEventName implements Input.
+func (p *PostToolUseFailureInput) GetHookEventName() Event { return EventPostToolUseFailure }
+
+// NotificationInput is the input for Notification hooks.
+//
+//nolint:tagliatelle // Claude CLI uses snake_case
+type NotificationInput struct {
+	BaseInput
+	HookEventName    string  `json:"hook_event_name"`
+	Message          string  `json:"message"`
+	Title            *string `json:"title,omitempty"`
+	NotificationType string  `json:"notification_type"`
+}
+
+// GetHookEventName implements Input.
+func (n *NotificationInput) GetHookEventName() Event { return EventNotification }
+
+// SubagentStartInput is the input for SubagentStart hooks.
+//
+//nolint:tagliatelle // Claude CLI uses snake_case
+type SubagentStartInput struct {
+	BaseInput
+	HookEventName string `json:"hook_event_name"`
+	AgentID       string `json:"agent_id"`
+	AgentType     string `json:"agent_type"`
+}
+
+// GetHookEventName implements Input.
+func (s *SubagentStartInput) GetHookEventName() Event { return EventSubagentStart }
+
+// PermissionRequestInput is the input for PermissionRequest hooks.
+//
+//nolint:tagliatelle // Claude CLI uses snake_case
+type PermissionRequestInput struct {
+	BaseInput
+	HookEventName         string         `json:"hook_event_name"`
+	ToolName              string         `json:"tool_name"`
+	ToolInput             map[string]any `json:"tool_input"`
+	PermissionSuggestions []any          `json:"permission_suggestions"`
+}
+
+// GetHookEventName implements Input.
+func (p *PermissionRequestInput) GetHookEventName() Event { return EventPermissionRequest }
 
 // PreCompactInput is the input for PreCompact hooks.
 //
@@ -178,6 +252,10 @@ var (
 	_ SpecificOutput = (*PreToolUseSpecificOutput)(nil)
 	_ SpecificOutput = (*PostToolUseSpecificOutput)(nil)
 	_ SpecificOutput = (*UserPromptSubmitSpecificOutput)(nil)
+	_ SpecificOutput = (*PostToolUseFailureSpecificOutput)(nil)
+	_ SpecificOutput = (*NotificationSpecificOutput)(nil)
+	_ SpecificOutput = (*SubagentStartSpecificOutput)(nil)
+	_ SpecificOutput = (*PermissionRequestSpecificOutput)(nil)
 )
 
 // PreToolUseSpecificOutput is the hook-specific output for PreToolUse.
@@ -186,6 +264,7 @@ type PreToolUseSpecificOutput struct {
 	PermissionDecision       *string        `json:"permissionDecision,omitempty"`
 	PermissionDecisionReason *string        `json:"permissionDecisionReason,omitempty"`
 	UpdatedInput             map[string]any `json:"updatedInput,omitempty"`
+	AdditionalContext        *string        `json:"additionalContext,omitempty"`
 }
 
 // GetHookEventName implements SpecificOutput.
@@ -193,8 +272,9 @@ func (p *PreToolUseSpecificOutput) GetHookEventName() string { return "PreToolUs
 
 // PostToolUseSpecificOutput is the hook-specific output for PostToolUse.
 type PostToolUseSpecificOutput struct {
-	HookEventName     string  `json:"hookEventName"` // "PostToolUse"
-	AdditionalContext *string `json:"additionalContext,omitempty"`
+	HookEventName        string  `json:"hookEventName"` // "PostToolUse"
+	AdditionalContext    *string `json:"additionalContext,omitempty"`
+	UpdatedMCPToolOutput any     `json:"updatedMCPToolOutput,omitempty"` //nolint:tagliatelle // CLI protocol uses MCP acronym
 }
 
 // GetHookEventName implements SpecificOutput.
@@ -210,6 +290,44 @@ type UserPromptSubmitSpecificOutput struct {
 func (u *UserPromptSubmitSpecificOutput) GetHookEventName() string {
 	return "UserPromptSubmit"
 }
+
+// PostToolUseFailureSpecificOutput is the hook-specific output for PostToolUseFailure.
+type PostToolUseFailureSpecificOutput struct {
+	HookEventName     string  `json:"hookEventName"` // "PostToolUseFailure"
+	AdditionalContext *string `json:"additionalContext,omitempty"`
+}
+
+// GetHookEventName implements SpecificOutput.
+func (p *PostToolUseFailureSpecificOutput) GetHookEventName() string {
+	return "PostToolUseFailure"
+}
+
+// NotificationSpecificOutput is the hook-specific output for Notification.
+type NotificationSpecificOutput struct {
+	HookEventName     string  `json:"hookEventName"` // "Notification"
+	AdditionalContext *string `json:"additionalContext,omitempty"`
+}
+
+// GetHookEventName implements SpecificOutput.
+func (n *NotificationSpecificOutput) GetHookEventName() string { return "Notification" }
+
+// SubagentStartSpecificOutput is the hook-specific output for SubagentStart.
+type SubagentStartSpecificOutput struct {
+	HookEventName     string  `json:"hookEventName"` // "SubagentStart"
+	AdditionalContext *string `json:"additionalContext,omitempty"`
+}
+
+// GetHookEventName implements SpecificOutput.
+func (s *SubagentStartSpecificOutput) GetHookEventName() string { return "SubagentStart" }
+
+// PermissionRequestSpecificOutput is the hook-specific output for PermissionRequest.
+type PermissionRequestSpecificOutput struct {
+	HookEventName string         `json:"hookEventName"` // "PermissionRequest"
+	Decision      map[string]any `json:"decision,omitempty"`
+}
+
+// GetHookEventName implements SpecificOutput.
+func (p *PermissionRequestSpecificOutput) GetHookEventName() string { return "PermissionRequest" }
 
 // Context provides context for hook execution.
 type Context struct{}

@@ -278,17 +278,20 @@ func (s *Session) parseHookInput(inputData map[string]any) (hook.Input, error) {
 	case string(hook.EventPreToolUse):
 		toolName, _ := inputData["tool_name"].(string)
 		toolInput, _ := inputData["tool_input"].(map[string]any)
+		toolUseID, _ := inputData["tool_use_id"].(string)
 
 		return &hook.PreToolUseInput{
 			BaseInput:     baseInput,
 			HookEventName: hookEventName,
 			ToolName:      toolName,
 			ToolInput:     toolInput,
+			ToolUseID:     toolUseID,
 		}, nil
 
 	case string(hook.EventPostToolUse):
 		toolName, _ := inputData["tool_name"].(string)
 		toolInput, _ := inputData["tool_input"].(map[string]any)
+		toolUseID, _ := inputData["tool_use_id"].(string)
 		toolResponse := inputData["tool_response"]
 
 		return &hook.PostToolUseInput{
@@ -296,6 +299,7 @@ func (s *Session) parseHookInput(inputData map[string]any) (hook.Input, error) {
 			HookEventName: hookEventName,
 			ToolName:      toolName,
 			ToolInput:     toolInput,
+			ToolUseID:     toolUseID,
 			ToolResponse:  toolResponse,
 		}, nil
 
@@ -319,11 +323,17 @@ func (s *Session) parseHookInput(inputData map[string]any) (hook.Input, error) {
 
 	case string(hook.EventSubagentStop):
 		stopHookActive, _ := inputData["stop_hook_active"].(bool)
+		agentID, _ := inputData["agent_id"].(string)
+		agentTranscriptPath, _ := inputData["agent_transcript_path"].(string)
+		agentType, _ := inputData["agent_type"].(string)
 
 		return &hook.SubagentStopInput{
-			BaseInput:      baseInput,
-			HookEventName:  hookEventName,
-			StopHookActive: stopHookActive,
+			BaseInput:           baseInput,
+			HookEventName:       hookEventName,
+			StopHookActive:      stopHookActive,
+			AgentID:             agentID,
+			AgentTranscriptPath: agentTranscriptPath,
+			AgentType:           agentType,
 		}, nil
 
 	case string(hook.EventPreCompact):
@@ -339,6 +349,72 @@ func (s *Session) parseHookInput(inputData map[string]any) (hook.Input, error) {
 			HookEventName:      hookEventName,
 			Trigger:            trigger,
 			CustomInstructions: customInstructions,
+		}, nil
+
+	case string(hook.EventPostToolUseFailure):
+		toolName, _ := inputData["tool_name"].(string)
+		toolInput, _ := inputData["tool_input"].(map[string]any)
+		toolUseID, _ := inputData["tool_use_id"].(string)
+		toolError, _ := inputData["error"].(string)
+
+		var isInterrupt *bool
+		if v, ok := inputData["is_interrupt"].(bool); ok {
+			isInterrupt = &v
+		}
+
+		return &hook.PostToolUseFailureInput{
+			BaseInput:     baseInput,
+			HookEventName: hookEventName,
+			ToolName:      toolName,
+			ToolInput:     toolInput,
+			ToolUseID:     toolUseID,
+			Error:         toolError,
+			IsInterrupt:   isInterrupt,
+		}, nil
+
+	case string(hook.EventNotification):
+		msg, _ := inputData["message"].(string)
+		notificationType, _ := inputData["notification_type"].(string)
+
+		var title *string
+		if t, ok := inputData["title"].(string); ok && t != "" {
+			title = &t
+		}
+
+		return &hook.NotificationInput{
+			BaseInput:        baseInput,
+			HookEventName:    hookEventName,
+			Message:          msg,
+			Title:            title,
+			NotificationType: notificationType,
+		}, nil
+
+	case string(hook.EventSubagentStart):
+		agentID, _ := inputData["agent_id"].(string)
+		agentType, _ := inputData["agent_type"].(string)
+
+		return &hook.SubagentStartInput{
+			BaseInput:     baseInput,
+			HookEventName: hookEventName,
+			AgentID:       agentID,
+			AgentType:     agentType,
+		}, nil
+
+	case string(hook.EventPermissionRequest):
+		toolName, _ := inputData["tool_name"].(string)
+		toolInput, _ := inputData["tool_input"].(map[string]any)
+
+		var permissionSuggestions []any
+		if ps, ok := inputData["permission_suggestions"].([]any); ok {
+			permissionSuggestions = ps
+		}
+
+		return &hook.PermissionRequestInput{
+			BaseInput:             baseInput,
+			HookEventName:         hookEventName,
+			ToolName:              toolName,
+			ToolInput:             toolInput,
+			PermissionSuggestions: permissionSuggestions,
 		}, nil
 
 	default:

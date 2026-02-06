@@ -5,9 +5,50 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/Savid/claude-agent-sdk-go/internal/config"
 	"github.com/Savid/claude-agent-sdk-go/internal/hook"
 	"github.com/Savid/claude-agent-sdk-go/internal/mcp"
+	"github.com/stretchr/testify/require"
 )
+
+// TestSession_NeedsInitialization_WithAgents tests that NeedsInitialization returns true
+// when agents are configured, even without hooks, CanUseTool, or MCP servers.
+func TestSession_NeedsInitialization_WithAgents(t *testing.T) {
+	log := slog.Default()
+
+	session := &Session{
+		log: log,
+		options: &config.Options{
+			Agents: map[string]*config.AgentDefinition{
+				"researcher": {
+					Description: "A research agent",
+					Prompt:      "You are a research assistant",
+				},
+			},
+		},
+		hookCallbacks: make(map[string]hook.Callback, 16),
+		sdkMcpServers: make(map[string]mcp.ServerInstance, 4),
+	}
+
+	require.True(t, session.NeedsInitialization(),
+		"Expected NeedsInitialization() to return true when agents are configured")
+}
+
+// TestSession_NeedsInitialization_Empty tests that NeedsInitialization returns false
+// when no hooks, agents, CanUseTool, or MCP servers are configured.
+func TestSession_NeedsInitialization_Empty(t *testing.T) {
+	log := slog.Default()
+
+	session := &Session{
+		log:           log,
+		options:       &config.Options{},
+		hookCallbacks: make(map[string]hook.Callback, 16),
+		sdkMcpServers: make(map[string]mcp.ServerInstance, 4),
+	}
+
+	require.False(t, session.NeedsInitialization(),
+		"Expected NeedsInitialization() to return false with empty options")
+}
 
 // TestSession_InitializationResult_DataRace tests for data race between
 // writing initializationResult and reading it via GetInitializationResult().

@@ -921,6 +921,25 @@ func TestBuildArgs_NonStreamingMode(t *testing.T) {
 	require.NotContains(t, args, "--input-format")
 }
 
+// TestBuildArgs_AgentsNotInCLIArgs tests that agents are NOT passed as CLI flags.
+// Agent definitions are sent via the initialize control request instead.
+func TestBuildArgs_AgentsNotInCLIArgs(t *testing.T) {
+	options := &config.Options{
+		Agents: map[string]*config.AgentDefinition{
+			"researcher": {
+				Description: "A research agent",
+				Prompt:      "You are a research assistant",
+				Tools:       []string{"Read", "Glob", "Grep"},
+			},
+		},
+	}
+
+	args := BuildArgs("test", options, false)
+
+	require.NotContains(t, args, "--agents",
+		"Expected --agents flag to be absent; agents are sent via initialize request")
+}
+
 // TestCompareVersions tests semantic version comparison.
 func TestCompareVersions(t *testing.T) {
 	tests := []struct {

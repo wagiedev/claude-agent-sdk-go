@@ -169,13 +169,8 @@ func BuildArgs(
 		args = append(args, "--fork-session")
 	}
 
-	// Agents (as JSON)
-	if len(options.Agents) > 0 {
-		agentsJSON, err := json.Marshal(options.Agents)
-		if err == nil {
-			args = append(args, "--agents", string(agentsJSON))
-		}
-	}
+	// Note: Agents are sent via the initialize control request, not CLI flags.
+	// This avoids platform-specific ARG_MAX limits for large agent definitions.
 
 	// Setting sources - always set this flag (can be empty)
 	sources := make([]string, len(options.SettingSources))

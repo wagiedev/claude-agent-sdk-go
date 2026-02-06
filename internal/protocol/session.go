@@ -133,6 +133,11 @@ func (s *Session) Initialize(ctx context.Context) error {
 		"hooks": hooksConfig,
 	}
 
+	// Include agent definitions in the initialize payload (avoids ARG_MAX limits)
+	if s.options != nil && len(s.options.Agents) > 0 {
+		payload["agents"] = s.options.Agents
+	}
+
 	timeout := s.getInitializeTimeout()
 
 	resp, err := s.controller.SendRequest(ctx, "initialize", payload, timeout)
@@ -171,10 +176,11 @@ func (s *Session) NeedsInitialization() bool {
 		return false
 	}
 
-	// Need initialization if we have hooks, CanUseTool callback, or SDK MCP servers
+	// Need initialization if we have hooks, CanUseTool callback, SDK MCP servers, or agents
 	return len(s.options.Hooks) > 0 ||
 		s.options.CanUseTool != nil ||
-		len(s.sdkMcpServers) > 0
+		len(s.sdkMcpServers) > 0 ||
+		len(s.options.Agents) > 0
 }
 
 // GetInitializationResult returns a copy of the server initialization info.

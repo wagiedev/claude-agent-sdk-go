@@ -1,7 +1,7 @@
 package claudesdk
 
 import (
-	internalmcp "github.com/Savid/claude-agent-sdk-go/internal/mcp"
+	internalmcp "github.com/wagiedev/claude-agent-sdk-go/internal/mcp"
 )
 
 // CreateSdkMcpServer creates an in-process MCP server configuration with SdkMcpTool tools.

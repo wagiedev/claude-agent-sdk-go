@@ -4,10 +4,10 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/hook"
-	"github.com/Savid/claude-agent-sdk-go/internal/mcp"
-	"github.com/Savid/claude-agent-sdk-go/internal/permission"
-	"github.com/Savid/claude-agent-sdk-go/internal/sandbox"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/hook"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/mcp"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/permission"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/sandbox"
 )
 
 // Options configures the behavior of the Claude agent.

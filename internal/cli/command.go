@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/config"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
 )
 
 // Command represents the CLI command to execute.

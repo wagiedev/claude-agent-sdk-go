@@ -1,6 +1,6 @@
 package claudesdk
 
-import "github.com/Savid/claude-agent-sdk-go/internal/config"
+import "github.com/wagiedev/claude-agent-sdk-go/internal/config"
 
 // Transport defines the interface for Claude CLI communication.
 // Implement this to provide custom transports for testing, mocking,

@@ -14,7 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	claudesdk "github.com/Savid/claude-agent-sdk-go"
+	claudesdk "github.com/wagiedev/claude-agent-sdk-go"
 )
 
 var compactionFired atomic.Bool

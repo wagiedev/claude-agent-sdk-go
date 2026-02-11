@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/errors"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/errors"
 	"github.com/oklog/ulid/v2"
 )
 

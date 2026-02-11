@@ -7,7 +7,7 @@ This file provides guidance to Claude Code when working with this repository.
 **Claude Agent SDK for Go** - Unofficial Go SDK for Claude Code CLI integration.
 Provides `Query()` (one-shot) and `Client` (streaming/multi-turn) APIs.
 
-- **Module**: `github.com/Savid/claude-agent-sdk-go`
+- **Module**: `github.com/wagiedev/claude-agent-sdk-go`
 - **Go Version**: 1.25+
 - **CLI Requirement**: Claude CLI v2.0.0+
 

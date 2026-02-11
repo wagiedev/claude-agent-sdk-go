@@ -4,7 +4,7 @@ import (
 	"github.com/google/jsonschema-go/jsonschema"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	internalmcp "github.com/Savid/claude-agent-sdk-go/internal/mcp"
+	internalmcp "github.com/wagiedev/claude-agent-sdk-go/internal/mcp"
 )
 
 // Re-export MCP SDK types for public API.

@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	claudesdk "github.com/Savid/claude-agent-sdk-go"
+	claudesdk "github.com/wagiedev/claude-agent-sdk-go"
 )
 
 // displayMessage standardizes message display function.

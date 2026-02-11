@@ -12,7 +12,7 @@ import (
 	"os"
 	"time"
 
-	claudesdk "github.com/Savid/claude-agent-sdk-go"
+	claudesdk "github.com/wagiedev/claude-agent-sdk-go"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 

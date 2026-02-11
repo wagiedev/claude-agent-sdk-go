@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/config"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
 )
 
 // mockTransport implements config.Transport for testing.

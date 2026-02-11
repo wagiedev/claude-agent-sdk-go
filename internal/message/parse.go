@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/errors"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/errors"
 )
 
 // Parse converts a raw JSON map into a typed Message.

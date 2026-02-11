@@ -8,10 +8,10 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/config"
-	"github.com/Savid/claude-agent-sdk-go/internal/errors"
-	"github.com/Savid/claude-agent-sdk-go/internal/mcp"
-	"github.com/Savid/claude-agent-sdk-go/internal/sandbox"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/errors"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/mcp"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/sandbox"
 	"github.com/stretchr/testify/require"
 )
 

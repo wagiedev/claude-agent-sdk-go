@@ -5,9 +5,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/config"
-	"github.com/Savid/claude-agent-sdk-go/internal/hook"
-	"github.com/Savid/claude-agent-sdk-go/internal/mcp"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/hook"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/mcp"
 	"github.com/stretchr/testify/require"
 )
 

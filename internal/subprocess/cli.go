@@ -14,9 +14,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/cli"
-	"github.com/Savid/claude-agent-sdk-go/internal/config"
-	"github.com/Savid/claude-agent-sdk-go/internal/errors"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/cli"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/errors"
 )
 
 const (

@@ -4,9 +4,9 @@ import (
 	"context"
 	"iter"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/client"
-	"github.com/Savid/claude-agent-sdk-go/internal/config"
-	"github.com/Savid/claude-agent-sdk-go/internal/message"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/client"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/message"
 )
 
 // clientWrapper wraps the internal client to adapt it to the public interface.

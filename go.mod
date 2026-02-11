@@ -1,4 +1,4 @@
-module github.com/Savid/claude-agent-sdk-go
+module github.com/wagiedev/claude-agent-sdk-go
 
 go 1.25
 

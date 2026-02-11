@@ -10,10 +10,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/config"
-	"github.com/Savid/claude-agent-sdk-go/internal/hook"
-	"github.com/Savid/claude-agent-sdk-go/internal/mcp"
-	"github.com/Savid/claude-agent-sdk-go/internal/permission"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/hook"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/mcp"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/permission"
 )
 
 const (

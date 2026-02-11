@@ -1,6 +1,6 @@
 package claudesdk
 
-import "github.com/Savid/claude-agent-sdk-go/internal/errors"
+import "github.com/wagiedev/claude-agent-sdk-go/internal/errors"
 
 // Re-export error types from internal package
 

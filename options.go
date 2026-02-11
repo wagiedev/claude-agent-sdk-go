@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/config"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
 )
 
 // Option configures ClaudeAgentOptions using the functional options pattern.

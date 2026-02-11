@@ -5,7 +5,7 @@ Go SDK for building agentic applications with Claude Code.
 ## Installation
 
 ```bash
-go get github.com/Savid/claude-agent-sdk-go
+go get github.com/wagiedev/claude-agent-sdk-go
 ```
 
 **Prerequisites:**
@@ -21,7 +21,7 @@ import (
     "context"
     "fmt"
 
-    claudesdk "github.com/Savid/claude-agent-sdk-go"
+    claudesdk "github.com/wagiedev/claude-agent-sdk-go"
 )
 
 func main() {

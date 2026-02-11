@@ -1,9 +1,9 @@
-module github.com/Savid/claude-agent-sdk-go/examples/custom_logger
+module github.com/wagiedev/claude-agent-sdk-go/examples/custom_logger
 
 go 1.25
 
 require (
-	github.com/Savid/claude-agent-sdk-go v0.1.0
+	github.com/wagiedev/claude-agent-sdk-go v0.1.0
 	github.com/sirupsen/logrus v1.9.4
 )
 
@@ -17,4 +17,4 @@ require (
 	golang.org/x/sys v0.13.0 // indirect
 )
 
-replace github.com/Savid/claude-agent-sdk-go => ../..
+replace github.com/wagiedev/claude-agent-sdk-go => ../..

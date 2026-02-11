@@ -14,7 +14,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	claudesdk "github.com/Savid/claude-agent-sdk-go"
+	claudesdk "github.com/wagiedev/claude-agent-sdk-go"
 )
 
 // logrusHandler adapts logrus to the slog.Handler interface.

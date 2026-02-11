@@ -13,10 +13,10 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/config"
-	"github.com/Savid/claude-agent-sdk-go/internal/message"
-	"github.com/Savid/claude-agent-sdk-go/internal/protocol"
-	"github.com/Savid/claude-agent-sdk-go/internal/subprocess"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/message"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/protocol"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/subprocess"
 )
 
 const (

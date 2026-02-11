@@ -3,12 +3,12 @@ package claudesdk
 import (
 	"iter"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/config"
-	"github.com/Savid/claude-agent-sdk-go/internal/hook"
-	"github.com/Savid/claude-agent-sdk-go/internal/mcp"
-	"github.com/Savid/claude-agent-sdk-go/internal/message"
-	"github.com/Savid/claude-agent-sdk-go/internal/permission"
-	"github.com/Savid/claude-agent-sdk-go/internal/sandbox"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/hook"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/mcp"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/message"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/permission"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/sandbox"
 )
 
 // Re-export types from internal packages

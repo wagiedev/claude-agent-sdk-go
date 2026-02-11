@@ -15,8 +15,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/config"
-	"github.com/Savid/claude-agent-sdk-go/internal/errors"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/errors"
 	"github.com/stretchr/testify/require"
 )
 

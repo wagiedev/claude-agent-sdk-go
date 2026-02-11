@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Savid/claude-agent-sdk-go/internal/errors"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/errors"
 )
 
 const (

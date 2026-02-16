@@ -98,7 +98,7 @@ func main() {
 		claudesdk.WithIncludePartialMessages(true),
 		claudesdk.WithModel("claude-sonnet-4-5"),
 		claudesdk.WithMaxTurns(2),
-		claudesdk.WithMaxThinkingTokens(8000),
+		claudesdk.WithThinking(claudesdk.ThinkingConfigEnabled{BudgetTokens: 8000}),
 		claudesdk.WithPermissionMode("bypassPermissions"),
 	); err != nil {
 		fmt.Printf("Failed to connect: %v\n", err)

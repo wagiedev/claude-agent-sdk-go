@@ -8,11 +8,11 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
 	"github.com/wagiedev/claude-agent-sdk-go/internal/errors"
 	"github.com/wagiedev/claude-agent-sdk-go/internal/mcp"
 	"github.com/wagiedev/claude-agent-sdk-go/internal/sandbox"
-	"github.com/stretchr/testify/require"
 )
 
 const flagMCPConfig = "--mcp-config"
@@ -110,19 +110,6 @@ func TestBuildArgs_WithSystemPromptPreset(t *testing.T) {
 			break
 		}
 	}
-}
-
-// TestBuildArgs_WithMaxThinkingTokens tests max thinking tokens option.
-func TestBuildArgs_WithMaxThinkingTokens(t *testing.T) {
-	maxThinking := 8000
-	options := &config.Options{
-		MaxThinkingTokens: &maxThinking,
-	}
-
-	args := BuildArgs("test", options, false)
-
-	require.Contains(t, args, "--max-thinking-tokens")
-	require.Contains(t, args, "8000")
 }
 
 // TestBuildArgs_WithFallbackModel tests fallback model option.
@@ -938,6 +925,79 @@ func TestBuildArgs_AgentsNotInCLIArgs(t *testing.T) {
 
 	require.NotContains(t, args, "--agents",
 		"Expected --agents flag to be absent; agents are sent via initialize request")
+}
+
+// TestBuildArgs_WithThinkingConfigAdaptive tests adaptive thinking config.
+func TestBuildArgs_WithThinkingConfigAdaptive(t *testing.T) {
+	options := &config.Options{
+		Thinking: config.ThinkingConfigAdaptive{},
+	}
+
+	args := BuildArgs("test", options, false)
+
+	// Adaptive defaults to 32000
+	thinkingIdx := slices.Index(args, "--max-thinking-tokens")
+	require.NotEqual(t, -1, thinkingIdx, "Expected --max-thinking-tokens flag")
+	require.Less(t, thinkingIdx+1, len(args))
+	require.Equal(t, "32000", args[thinkingIdx+1])
+}
+
+// TestBuildArgs_WithThinkingConfigEnabled tests enabled thinking config with budget.
+func TestBuildArgs_WithThinkingConfigEnabled(t *testing.T) {
+	options := &config.Options{
+		Thinking: config.ThinkingConfigEnabled{BudgetTokens: 50000},
+	}
+
+	args := BuildArgs("test", options, false)
+
+	thinkingIdx := slices.Index(args, "--max-thinking-tokens")
+	require.NotEqual(t, -1, thinkingIdx, "Expected --max-thinking-tokens flag")
+	require.Less(t, thinkingIdx+1, len(args))
+	require.Equal(t, "50000", args[thinkingIdx+1])
+}
+
+// TestBuildArgs_WithThinkingConfigDisabled tests disabled thinking config.
+func TestBuildArgs_WithThinkingConfigDisabled(t *testing.T) {
+	options := &config.Options{
+		Thinking: config.ThinkingConfigDisabled{},
+	}
+
+	args := BuildArgs("test", options, false)
+
+	thinkingIdx := slices.Index(args, "--max-thinking-tokens")
+	require.NotEqual(t, -1, thinkingIdx, "Expected --max-thinking-tokens flag")
+	require.Less(t, thinkingIdx+1, len(args))
+	require.Equal(t, "0", args[thinkingIdx+1])
+}
+
+// TestBuildArgs_WithEffort tests the effort flag.
+func TestBuildArgs_WithEffort(t *testing.T) {
+	tests := []struct {
+		name     string
+		effort   config.Effort
+		expected string
+	}{
+		{name: "low", effort: config.EffortLow, expected: "low"},
+		{name: "medium", effort: config.EffortMedium, expected: "medium"},
+		{name: "high", effort: config.EffortHigh, expected: "high"},
+		{name: "max", effort: config.EffortMax, expected: "max"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			effort := tt.effort
+			options := &config.Options{
+				Effort: &effort,
+			}
+
+			args := BuildArgs("test", options, false)
+
+			effortIdx := slices.Index(args, "--effort")
+			require.NotEqual(t, -1, effortIdx, "Expected --effort flag")
+			require.Less(t, effortIdx+1, len(args))
+			require.Equal(t, tt.expected, args[effortIdx+1])
+		})
+	}
 }
 
 // TestCompareVersions tests semantic version comparison.

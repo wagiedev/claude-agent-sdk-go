@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	claudesdk "github.com/wagiedev/claude-agent-sdk-go"
 	"github.com/stretchr/testify/require"
+	claudesdk "github.com/wagiedev/claude-agent-sdk-go"
 )
 
 // =============================================================================
@@ -1435,7 +1435,7 @@ func TestPartialMessages_ThinkingDeltas(t *testing.T) {
 		claudesdk.WithIncludePartialMessages(true),
 		claudesdk.WithPermissionMode("acceptAll"),
 		claudesdk.WithMaxTurns(1),
-		claudesdk.WithMaxThinkingTokens(maxThinking),
+		claudesdk.WithThinking(claudesdk.ThinkingConfigEnabled{BudgetTokens: maxThinking}),
 		claudesdk.WithModel("claude-sonnet-4-5-20250514"),
 	) {
 		if err != nil {

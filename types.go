@@ -45,6 +45,34 @@ const (
 	SettingSourceLocal = config.SettingSourceLocal
 )
 
+// ===== Thinking Configuration =====
+
+// ThinkingConfig controls extended thinking behavior.
+type ThinkingConfig = config.ThinkingConfig
+
+// ThinkingConfigAdaptive enables adaptive thinking mode.
+type ThinkingConfigAdaptive = config.ThinkingConfigAdaptive
+
+// ThinkingConfigEnabled enables thinking with a specific token budget.
+type ThinkingConfigEnabled = config.ThinkingConfigEnabled
+
+// ThinkingConfigDisabled disables extended thinking.
+type ThinkingConfigDisabled = config.ThinkingConfigDisabled
+
+// Effort controls thinking depth.
+type Effort = config.Effort
+
+const (
+	// EffortLow uses minimal thinking.
+	EffortLow = config.EffortLow
+	// EffortMedium uses moderate thinking.
+	EffortMedium = config.EffortMedium
+	// EffortHigh uses deep thinking.
+	EffortHigh = config.EffortHigh
+	// EffortMax uses maximum thinking depth.
+	EffortMax = config.EffortMax
+)
+
 // AgentDefinition defines a custom agent configuration.
 type AgentDefinition = config.AgentDefinition
 

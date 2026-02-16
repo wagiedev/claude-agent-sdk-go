@@ -640,8 +640,8 @@ func TestClient_WithOptionsVerification(t *testing.T) {
 		opts []AgentOption
 	}{
 		{
-			name: "with max thinking tokens",
-			opts: []AgentOption{WithMaxThinkingTokens(8000)},
+			name: "with thinking enabled",
+			opts: []AgentOption{WithThinking(ThinkingConfigEnabled{BudgetTokens: 8000})},
 		},
 		{
 			name: "with include partial messages",

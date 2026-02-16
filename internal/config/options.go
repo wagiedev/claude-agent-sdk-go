@@ -10,6 +10,44 @@ import (
 	"github.com/wagiedev/claude-agent-sdk-go/internal/sandbox"
 )
 
+// Effort controls thinking depth.
+type Effort string
+
+const (
+	// EffortLow uses minimal thinking.
+	EffortLow Effort = "low"
+	// EffortMedium uses moderate thinking.
+	EffortMedium Effort = "medium"
+	// EffortHigh uses deep thinking.
+	EffortHigh Effort = "high"
+	// EffortMax uses maximum thinking depth.
+	EffortMax Effort = "max"
+)
+
+// ThinkingConfig controls extended thinking behavior.
+// Implementations: ThinkingConfigAdaptive, ThinkingConfigEnabled, ThinkingConfigDisabled.
+type ThinkingConfig interface {
+	thinkingConfig() // marker method
+}
+
+// ThinkingConfigAdaptive enables adaptive thinking mode.
+// Uses a default budget of 32,000 tokens.
+type ThinkingConfigAdaptive struct{}
+
+func (ThinkingConfigAdaptive) thinkingConfig() {}
+
+// ThinkingConfigEnabled enables thinking with a specific token budget.
+type ThinkingConfigEnabled struct {
+	BudgetTokens int
+}
+
+func (ThinkingConfigEnabled) thinkingConfig() {}
+
+// ThinkingConfigDisabled disables extended thinking.
+type ThinkingConfigDisabled struct{}
+
+func (ThinkingConfigDisabled) thinkingConfig() {}
+
 // Options configures the behavior of the Claude agent.
 type Options struct {
 	// Logger is the slog logger for debug output.
@@ -47,9 +85,12 @@ type Options struct {
 	// Hooks configures event hooks for tool interception
 	Hooks map[hook.Event][]*hook.Matcher
 
-	// MaxThinkingTokens limits the number of thinking tokens Claude can use.
-	// If nil, no limit is imposed.
-	MaxThinkingTokens *int
+	// Thinking controls extended thinking behavior.
+	Thinking ThinkingConfig
+
+	// Effort controls thinking depth.
+	// If nil, no effort flag is passed to the CLI.
+	Effort *Effort
 
 	// IncludePartialMessages enables streaming of partial message updates.
 	IncludePartialMessages bool

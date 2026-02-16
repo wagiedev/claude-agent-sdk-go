@@ -118,10 +118,17 @@ func WithHooks(hooks map[HookEvent][]*HookMatcher) Option {
 
 // ===== Token/Budget =====
 
-// WithMaxThinkingTokens limits the number of thinking tokens Claude can use.
-func WithMaxThinkingTokens(tokens int) Option {
+// WithThinking sets the thinking configuration.
+func WithThinking(thinking config.ThinkingConfig) Option {
 	return func(o *ClaudeAgentOptions) {
-		o.MaxThinkingTokens = &tokens
+		o.Thinking = thinking
+	}
+}
+
+// WithEffort sets the thinking effort level.
+func WithEffort(effort config.Effort) Option {
+	return func(o *ClaudeAgentOptions) {
+		o.Effort = &effort
 	}
 }
 

@@ -262,18 +262,16 @@ func TestClaudeAgentOptions_WithSessionContinuation(t *testing.T) {
 
 // TestClaudeAgentOptions_WithModel tests options with model specification.
 func TestClaudeAgentOptions_WithModel(t *testing.T) {
-	maxThinking := 8000
-
 	options := &ClaudeAgentOptions{
-		Model:             "claude-opus-4-5-20251101",
-		MaxTurns:          100,
-		MaxThinkingTokens: &maxThinking,
-		FallbackModel:     "claude-3-5-sonnet-20241022",
+		Model:         "claude-opus-4-5-20251101",
+		MaxTurns:      100,
+		Thinking:      ThinkingConfigEnabled{BudgetTokens: 8000},
+		FallbackModel: "claude-3-5-sonnet-20241022",
 	}
 
 	require.Equal(t, "claude-opus-4-5-20251101", options.Model)
 	require.Equal(t, 100, options.MaxTurns)
-	require.NotNil(t, options.MaxThinkingTokens)
-	require.Equal(t, 8000, *options.MaxThinkingTokens)
+	require.NotNil(t, options.Thinking)
+	require.Equal(t, ThinkingConfigEnabled{BudgetTokens: 8000}, options.Thinking)
 	require.Equal(t, "claude-3-5-sonnet-20241022", options.FallbackModel)
 }

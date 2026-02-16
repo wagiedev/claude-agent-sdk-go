@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/wagiedev/claude-agent-sdk-go/internal/errors"
 	"github.com/oklog/ulid/v2"
+	"github.com/wagiedev/claude-agent-sdk-go/internal/errors"
 )
 
 // Transport defines the minimal interface needed for protocol operations.

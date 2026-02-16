@@ -96,7 +96,7 @@ func displayMessageStreaming(msg claudesdk.Message) {
 func exampleBasicThinking() {
 	fmt.Println("=== Basic Extended Thinking Example ===")
 	fmt.Println("This example shows Claude's thinking process for a complex problem.")
-	fmt.Println("Thinking is shown after completion.")
+	fmt.Println("Thinking is shown after completion (using WithThinking).")
 	fmt.Println()
 
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
@@ -110,7 +110,7 @@ func exampleBasicThinking() {
 	if err := client.Start(ctx,
 		claudesdk.WithLogger(logger),
 		claudesdk.WithModel("claude-sonnet-4-5"),
-		claudesdk.WithMaxThinkingTokens(8000),
+		claudesdk.WithThinking(claudesdk.ThinkingConfigEnabled{BudgetTokens: 8000}),
 		claudesdk.WithMaxTurns(1),
 	); err != nil {
 		fmt.Printf("Failed to connect: %v\n", err)
@@ -119,6 +119,60 @@ func exampleBasicThinking() {
 	}
 
 	prompt := "What is the sum of the first 20 prime numbers? Show your reasoning."
+	fmt.Printf("Prompt: %s\n", prompt)
+	fmt.Println(strings.Repeat("-", 50))
+
+	if err := client.Query(ctx, prompt); err != nil {
+		fmt.Printf("Failed to send query: %v\n", err)
+
+		return
+	}
+
+	for msg, err := range client.ReceiveResponse(ctx) {
+		if err != nil {
+			fmt.Printf("Error receiving response: %v\n", err)
+
+			return
+		}
+
+		displayMessageBasic(msg)
+	}
+
+	fmt.Println()
+}
+
+// exampleThinkingConfig demonstrates the structured ThinkingConfig API.
+// Uses WithThinking for explicit control over thinking behavior.
+func exampleThinkingConfig() {
+	fmt.Println("=== ThinkingConfig Example ===")
+	fmt.Println("This example uses WithThinking(ThinkingConfigEnabled{}) for explicit control.")
+	fmt.Println()
+
+	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
+	client := claudesdk.NewClient()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
+	defer cancel()
+	defer client.Close()
+
+	// Use WithThinking for structured thinking configuration.
+	// ThinkingConfigEnabled sets an explicit token budget.
+	// ThinkingConfigAdaptive uses a default of 32,000 tokens.
+	// ThinkingConfigDisabled turns off thinking entirely.
+	if err := client.Start(ctx,
+		claudesdk.WithLogger(logger),
+		claudesdk.WithModel("claude-sonnet-4-5"),
+		claudesdk.WithThinking(claudesdk.ThinkingConfigEnabled{BudgetTokens: 10000}),
+		claudesdk.WithEffort(claudesdk.EffortHigh),
+		claudesdk.WithMaxTurns(1),
+	); err != nil {
+		fmt.Printf("Failed to connect: %v\n", err)
+
+		return
+	}
+
+	prompt := "Explain the relationship between the Fibonacci sequence and the golden ratio."
 	fmt.Printf("Prompt: %s\n", prompt)
 	fmt.Println(strings.Repeat("-", 50))
 
@@ -159,7 +213,7 @@ func exampleStreamingThinking() {
 	if err := client.Start(ctx,
 		claudesdk.WithLogger(logger),
 		claudesdk.WithModel("claude-sonnet-4-5"),
-		claudesdk.WithMaxThinkingTokens(8000),
+		claudesdk.WithThinking(claudesdk.ThinkingConfigEnabled{BudgetTokens: 8000}),
 		claudesdk.WithIncludePartialMessages(true),
 		claudesdk.WithMaxTurns(1),
 	); err != nil {
@@ -201,11 +255,12 @@ func main() {
 	fmt.Println(strings.Repeat("=", 60))
 	fmt.Println()
 	fmt.Println("Note: Extended thinking requires a thinking-capable model")
-	fmt.Println("(e.g., claude-sonnet-4-5) and WithMaxThinkingTokens option.")
+	fmt.Println("(e.g., claude-sonnet-4-5) and WithThinking option.")
 	fmt.Println()
 
 	examples := map[string]func(){
 		"basic":     exampleBasicThinking,
+		"thinking":  exampleThinkingConfig,
 		"streaming": exampleStreamingThinking,
 	}
 
@@ -213,7 +268,8 @@ func main() {
 		fmt.Println("Usage: go run main.go <example_name>")
 		fmt.Println("\nAvailable examples:")
 		fmt.Println("  all       - Run all examples")
-		fmt.Println("  basic     - Show thinking after completion")
+		fmt.Println("  basic     - Show thinking after completion (WithThinking)")
+		fmt.Println("  thinking  - Show thinking with ThinkingConfig and Effort")
 		fmt.Println("  streaming - Stream thinking in real-time")
 
 		return
@@ -223,6 +279,9 @@ func main() {
 
 	if exampleName == "all" {
 		exampleBasicThinking()
+		fmt.Println(strings.Repeat("-", 60))
+		fmt.Println()
+		exampleThinkingConfig()
 		fmt.Println(strings.Repeat("-", 60))
 		fmt.Println()
 		exampleStreamingThinking()

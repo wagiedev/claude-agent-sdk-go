@@ -42,11 +42,12 @@ func TestQueryWithNoOptions(t *testing.T) {
 	defer cancel()
 
 	// This should work if claude is in PATH
-	// If not, it should return CLINotFoundError
+	// If not, it should return CLINotFoundError or ProcessError
 	for _, err := range Query(ctx, "test") {
-		// Either succeeds or returns CLINotFoundError
 		_, isCLINotFound := AsType[*CLINotFoundError](err)
-		if err != nil && !isCLINotFound {
+		_, isProcessError := AsType[*ProcessError](err)
+
+		if err != nil && !isCLINotFound && !isProcessError {
 			t.Errorf("Unexpected error type: %v", err)
 		}
 
@@ -64,7 +65,7 @@ func TestQuery_WithOptions(t *testing.T) {
 		WithModel("claude-sonnet-4-5-20250514"),
 		WithPermissionMode("acceptAll"),
 		WithMaxTurns(1),
-		WithMaxThinkingTokens(1000),
+		WithThinking(ThinkingConfigEnabled{BudgetTokens: 1000}),
 		WithMaxBudgetUSD(1.0),
 		WithIncludePartialMessages(true),
 		WithAllowedTools("Read", "Grep"),

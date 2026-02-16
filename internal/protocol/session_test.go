@@ -5,10 +5,10 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
 	"github.com/wagiedev/claude-agent-sdk-go/internal/hook"
 	"github.com/wagiedev/claude-agent-sdk-go/internal/mcp"
-	"github.com/stretchr/testify/require"
 )
 
 // TestSession_NeedsInitialization_WithAgents tests that NeedsInitialization returns true

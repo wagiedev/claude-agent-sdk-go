@@ -12,8 +12,8 @@ import (
 	"os"
 	"time"
 
-	claudesdk "github.com/wagiedev/claude-agent-sdk-go"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	claudesdk "github.com/wagiedev/claude-agent-sdk-go"
 )
 
 // createCalculatorTools creates the 6 calculator tools: add, subtract, multiply, divide, sqrt, power.

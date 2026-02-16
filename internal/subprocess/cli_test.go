@@ -15,9 +15,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
 	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
 	"github.com/wagiedev/claude-agent-sdk-go/internal/errors"
-	"github.com/stretchr/testify/require"
 )
 
 // TestStart_IgnoredGetwdError tests that Start() returns an error when os.Getwd() fails.

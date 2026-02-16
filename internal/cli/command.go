@@ -62,9 +62,21 @@ func BuildArgs(
 		args = append(args, "--system-prompt", "")
 	}
 
-	// Advanced options (Phase 3)
-	if options.MaxThinkingTokens != nil {
-		args = append(args, "--max-thinking-tokens", strconv.Itoa(*options.MaxThinkingTokens))
+	// Thinking configuration
+	if options.Thinking != nil {
+		switch t := options.Thinking.(type) {
+		case config.ThinkingConfigAdaptive:
+			args = append(args, "--max-thinking-tokens", "32000")
+		case config.ThinkingConfigEnabled:
+			args = append(args, "--max-thinking-tokens", strconv.Itoa(t.BudgetTokens))
+		case config.ThinkingConfigDisabled:
+			args = append(args, "--max-thinking-tokens", "0")
+		}
+	}
+
+	// Effort flag
+	if options.Effort != nil {
+		args = append(args, "--effort", string(*options.Effort))
 	}
 
 	if options.IncludePartialMessages {

@@ -221,7 +221,7 @@ func TestCreateSdkMcpServer(t *testing.T) {
 }
 
 func TestCreateSdkMcpServerWithAnnotations(t *testing.T) {
-	boolPtr := func(b bool) *bool { return &b }
+	destructive := false
 
 	tool := NewSdkMcpTool(
 		"read_data",
@@ -232,7 +232,7 @@ func TestCreateSdkMcpServerWithAnnotations(t *testing.T) {
 		},
 		WithAnnotations(&mcp.ToolAnnotations{
 			ReadOnlyHint:    true,
-			DestructiveHint: boolPtr(false),
+			DestructiveHint: &destructive,
 			IdempotentHint:  true,
 		}),
 	)

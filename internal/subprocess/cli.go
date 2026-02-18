@@ -215,11 +215,8 @@ func (t *CLITransport) ReadMessages(
 
 	// Always buffer stderr for error reporting (must complete reads before Wait())
 	// See: https://pkg.go.dev/os/exec#Cmd.StderrPipe
-	stderrWg.Add(1)
 
-	go func() {
-		defer stderrWg.Done()
-
+	stderrWg.Go(func() {
 		// Simple scanner loop - relies on process kill to close pipes and unblock Scan().
 		// No nested goroutine needed: when Close() kills the process, the OS closes all
 		// pipes, which reliably returns from blocked Read() calls.
@@ -257,7 +254,7 @@ func (t *CLITransport) ReadMessages(
 		if err := scanner.Err(); err != nil {
 			t.log.Debug("Stderr scanner error", "error", err)
 		}
-	}()
+	})
 
 	go func() {
 		defer close(messages)
@@ -512,9 +509,9 @@ func cleanStderr(stderr string) string {
 
 	var cleaned strings.Builder
 
-	lines := strings.Split(stderr, "\n")
+	lines := strings.SplitSeq(stderr, "\n")
 
-	for _, line := range lines {
+	for line := range lines {
 		// Skip Bun source context lines (format: "1234 | <minified code>")
 		trimmed := strings.TrimSpace(line)
 		if isSourceContextLine(trimmed) {

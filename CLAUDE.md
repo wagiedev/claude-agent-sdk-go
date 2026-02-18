@@ -8,7 +8,7 @@ This file provides guidance to Claude Code when working with this repository.
 Provides `Query()` (one-shot) and `Client` (streaming/multi-turn) APIs.
 
 - **Module**: `github.com/wagiedev/claude-agent-sdk-go`
-- **Go Version**: 1.25+
+- **Go Version**: 1.26+
 - **CLI Requirement**: Claude CLI v2.0.0+
 
 ## Build & Test

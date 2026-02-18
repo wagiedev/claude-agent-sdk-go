@@ -78,8 +78,8 @@ func examplePreToolUse() {
 				return &claudesdk.SyncHookJSONOutput{
 					HookSpecificOutput: &claudesdk.PreToolUseHookSpecificOutput{
 						HookEventName:            "PreToolUse",
-						PermissionDecision:       ptr("deny"),
-						PermissionDecisionReason: ptr("Command contains invalid pattern: " + pattern),
+						PermissionDecision:       new("deny"),
+						PermissionDecisionReason: new("Command contains invalid pattern: " + pattern),
 					},
 				}, nil
 			}
@@ -166,7 +166,7 @@ func exampleUserPromptSubmit() {
 		return &claudesdk.SyncHookJSONOutput{
 			HookSpecificOutput: &claudesdk.UserPromptSubmitHookSpecificOutput{
 				HookEventName:     "UserPromptSubmit",
-				AdditionalContext: ptr("My favorite color is hot pink"),
+				AdditionalContext: new("My favorite color is hot pink"),
 			},
 		}, nil
 	}
@@ -236,8 +236,8 @@ func examplePostToolUse() {
 		// If the tool produced an error, add helpful context
 		if strings.Contains(strings.ToLower(toolResponse), "error") {
 			return &claudesdk.SyncHookJSONOutput{
-				SystemMessage: ptr("The command produced an error. You may want to try a different approach."),
-				Reason:        ptr("Tool execution failed - consider checking the command syntax"),
+				SystemMessage: new("The command produced an error. You may want to try a different approach."),
+				Reason:        new("Tool execution failed - consider checking the command syntax"),
 				HookSpecificOutput: &claudesdk.PostToolUseHookSpecificOutput{
 					HookEventName: "PostToolUse",
 				},
@@ -320,12 +320,12 @@ func exampleDecisionFields() {
 				fmt.Printf("[HOOK] Blocked Write to: %s\n", filePath)
 
 				return &claudesdk.SyncHookJSONOutput{
-					Reason:        ptr("Writes to files containing 'important' in the name are not allowed for safety"),
-					SystemMessage: ptr("Write operation blocked by security policy"),
+					Reason:        new("Writes to files containing 'important' in the name are not allowed for safety"),
+					SystemMessage: new("Write operation blocked by security policy"),
 					HookSpecificOutput: &claudesdk.PreToolUseHookSpecificOutput{
 						HookEventName:            "PreToolUse",
-						PermissionDecision:       ptr("deny"),
-						PermissionDecisionReason: ptr("Security policy blocks writes to important files"),
+						PermissionDecision:       new("deny"),
+						PermissionDecisionReason: new("Security policy blocks writes to important files"),
 					},
 				}, nil
 			}
@@ -333,11 +333,11 @@ func exampleDecisionFields() {
 
 		// Allow everything else explicitly
 		return &claudesdk.SyncHookJSONOutput{
-			Reason: ptr("Tool use approved after security review"),
+			Reason: new("Tool use approved after security review"),
 			HookSpecificOutput: &claudesdk.PreToolUseHookSpecificOutput{
 				HookEventName:            "PreToolUse",
-				PermissionDecision:       ptr("allow"),
-				PermissionDecisionReason: ptr("Tool passed security checks"),
+				PermissionDecision:       new("allow"),
+				PermissionDecisionReason: new("Tool passed security checks"),
 			},
 		}, nil
 	}
@@ -434,8 +434,8 @@ func exampleContinueControl() {
 
 			return &claudesdk.SyncHookJSONOutput{
 				Continue:      &continueFlag,
-				StopReason:    ptr("Critical error detected in tool output - execution halted for safety"),
-				SystemMessage: ptr("Execution stopped due to critical error"),
+				StopReason:    new("Critical error detected in tool output - execution halted for safety"),
+				SystemMessage: new("Execution stopped due to critical error"),
 			}, nil
 		}
 
@@ -477,8 +477,10 @@ func exampleContinueControl() {
 }
 
 // ptr is a helper to create pointers to string values.
+//
+//go:fix inline
 func ptr(s string) *string {
-	return &s
+	return new(s)
 }
 
 func main() {

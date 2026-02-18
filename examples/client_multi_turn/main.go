@@ -166,11 +166,8 @@ func exampleConcurrent() {
 	recvCtx, recvCancel := context.WithCancel(ctx)
 
 	// Background goroutine to continuously receive messages
-	wg.Add(1)
 
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		for msg, err := range client.ReceiveMessages(recvCtx) {
 			if err != nil {
 				return
@@ -178,7 +175,7 @@ func exampleConcurrent() {
 
 			displayMessage(msg)
 		}
-	}()
+	})
 
 	// Send multiple messages with delays
 	questions := []string{
@@ -245,11 +242,8 @@ func exampleInterrupt() {
 	var messagesReceived []claudesdk.Message
 
 	// Background goroutine to consume messages
-	wg.Add(1)
 
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		// Use iter.Pull2 to convert iterator to pull-based for use with select
 		next, stop := iter.Pull2(client.ReceiveMessages(ctx))
 		defer stop()
@@ -273,7 +267,7 @@ func exampleInterrupt() {
 				}
 			}
 		}
-	}()
+	})
 
 	// Wait 2 seconds then send interrupt
 	time.Sleep(2 * time.Second)
@@ -603,11 +597,8 @@ func exampleControlProtocol() {
 	done := make(chan struct{})
 
 	// Background goroutine to consume messages
-	wg.Add(1)
 
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		// Use iter.Pull2 to convert iterator to pull-based for use with select
 		next, stop := iter.Pull2(client.ReceiveMessages(ctx))
 		defer stop()
@@ -630,7 +621,7 @@ func exampleControlProtocol() {
 				}
 			}
 		}
-	}()
+	})
 
 	// Wait 2 seconds then send interrupt
 	time.Sleep(2 * time.Second)

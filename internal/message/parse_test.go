@@ -98,7 +98,7 @@ func TestParseAssistantMessage(t *testing.T) {
 			wantErrorValue: AssistantMessageErrorBilling,
 			wantModel:      "claude-sonnet-4-5-20250514",
 			wantContentLen: 1,
-			wantToolUseID:  strPtr("tool-123"),
+			wantToolUseID:  new("tool-123"),
 		},
 		{
 			name: "missing message field returns parse error",
@@ -142,6 +142,7 @@ func TestParseAssistantMessage(t *testing.T) {
 	}
 }
 
+//go:fix inline
 func strPtr(s string) *string {
-	return &s
+	return new(s)
 }

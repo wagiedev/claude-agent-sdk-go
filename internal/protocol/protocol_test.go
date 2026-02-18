@@ -14,7 +14,7 @@ import (
 func TestController_SetFatalError_ConcurrentWithStop(t *testing.T) {
 	// This test verifies no panic occurs when SetFatalError and Stop race.
 	// Run with: go test -race -count=100
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		transport := newMockTransport()
 		controller := NewController(slog.Default(), transport)
 
@@ -106,7 +106,7 @@ func TestController_SendRequest_ResponseAfterTimeout_Race(t *testing.T) {
 	// 4. handleControlResponse tries to send to response channel
 	//
 	// Run with: go test -race -count=100 -run TestController_SendRequest_ResponseAfterTimeout_Race
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		transport := newMockTransport()
 		controller := NewController(slog.Default(), transport)
 
@@ -181,12 +181,8 @@ func TestController_SendRequest_ResponseDeliveryRace(t *testing.T) {
 
 	numRequests := 50
 
-	for i := 0; i < numRequests; i++ {
-		wg.Add(1)
-
-		go func() {
-			defer wg.Done()
-
+	for range numRequests {
+		wg.Go(func() {
 			// Very short timeout
 			timeout := 100 * time.Microsecond
 
@@ -214,7 +210,7 @@ func TestController_SendRequest_ResponseDeliveryRace(t *testing.T) {
 			}
 
 			<-responseChan
-		}()
+		})
 	}
 
 	wg.Wait()
@@ -230,7 +226,7 @@ func TestController_SendRequest_ResponseChannelRace(t *testing.T) {
 	// - SendRequest defer: delete(c.pending, requestID) (line 215)
 	//
 	// Run with: go test -race -count=1000 -run TestController_SendRequest_ResponseChannelRace
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		transport := newMockTransport()
 		controller := NewController(slog.Default(), transport)
 
@@ -266,20 +262,16 @@ func TestController_SendRequest_ResponseChannelRace(t *testing.T) {
 
 		var wg sync.WaitGroup
 
-		wg.Add(1)
-
 		// Start the request with a timeout that will fire
-		go func() {
-			defer wg.Done()
-
+		wg.Go(func() {
 			_, _ = controller.SendRequest(ctx, "test", map[string]any{}, 500*time.Microsecond)
-		}()
+		})
 
 		// Wait for request to be registered, then immediately send response
 		select {
 		case <-reqIDCaptured:
 			// Spam responses to maximize chance of hitting the race window
-			for j := 0; j < 10; j++ {
+			for range 10 {
 				transport.sendToController(map[string]any{
 					"type": "control_response",
 					"response": map[string]any{

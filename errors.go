@@ -39,18 +39,3 @@ var (
 	// ErrRequestTimeout indicates a request timed out.
 	ErrRequestTimeout = errors.ErrRequestTimeout
 )
-
-// AsType finds the first error in err's tree that matches type E,
-// and if one is found, returns it and true. Otherwise, returns the
-// zero value of E and false.
-//
-// This mirrors the errors.AsType function added in Go 1.26.
-//
-// Usage:
-//
-//	if procErr, ok := claudesdk.AsType[*claudesdk.ProcessError](err); ok {
-//	    fmt.Printf("Process failed with exit code: %d\n", procErr.ExitCode)
-//	}
-func AsType[E error](err error) (E, bool) {
-	return errors.AsType[E](err)
-}

@@ -119,20 +119,6 @@ func (e *MessageParseError) Unwrap() error {
 // IsClaudeSDKError implements ClaudeSDKError.
 func (e *MessageParseError) IsClaudeSDKError() bool { return true }
 
-// AsType finds the first error in err's tree that matches type E,
-// and if one is found, returns it and true. Otherwise, returns the
-// zero value of E and false.
-//
-// This mirrors the errors.AsType function added in Go 1.26.
-func AsType[E error](err error) (E, bool) {
-	var target E
-	if errors.As(err, &target) {
-		return target, true
-	}
-
-	return target, false
-}
-
 // CLIJSONDecodeError indicates JSON parsing failed for CLI output.
 // This error preserves the original raw data that failed to parse.
 type CLIJSONDecodeError struct {

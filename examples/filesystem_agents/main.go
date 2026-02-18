@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -44,13 +45,7 @@ func extractAgents(msg *claudesdk.SystemMessage) []string {
 
 // containsAgent checks if an agent list contains a specific agent.
 func containsAgent(agents []string, target string) bool {
-	for _, agent := range agents {
-		if agent == target {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(agents, target)
 }
 
 // displayMessage standardizes message display across examples.
@@ -203,13 +198,7 @@ func findSDKDir() string {
 
 // containsMessageType checks if a message type list contains a specific type.
 func containsMessageType(types []string, target string) bool {
-	for _, t := range types {
-		if t == target {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(types, target)
 }
 
 // valueOrZero returns the value of a pointer or 0 if nil.

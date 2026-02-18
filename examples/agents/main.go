@@ -10,8 +10,9 @@ import (
 	claudesdk "github.com/wagiedev/claude-agent-sdk-go"
 )
 
+//go:fix inline
 func ptrString(s string) *string {
-	return &s
+	return new(s)
 }
 
 // displayMessage standardizes message display across examples.
@@ -63,7 +64,7 @@ func codeReviewerExample() {
 					"security vulnerabilities, and adherence to best practices. " +
 					"Provide constructive feedback.",
 				Tools: []string{"Read", "Grep"},
-				Model: ptrString("sonnet"),
+				Model: new("sonnet"),
 			},
 		}),
 		claudesdk.WithPermissionMode("bypassPermissions"),
@@ -114,7 +115,7 @@ func documentationWriterExample() {
 				Prompt: "You are a technical documentation expert. Write clear, comprehensive " +
 					"documentation with examples. Focus on clarity and completeness.",
 				Tools: []string{"Read", "Write", "Edit"},
-				Model: ptrString("sonnet"),
+				Model: new("sonnet"),
 			},
 		}),
 		claudesdk.WithPermissionMode("bypassPermissions"),
@@ -169,7 +170,7 @@ func multipleAgentsExample() {
 				Description: "Creates and runs tests",
 				Prompt:      "You are a testing expert. Write comprehensive tests and ensure code quality.",
 				Tools:       []string{"Read", "Write", "Bash"},
-				Model:       ptrString("sonnet"),
+				Model:       new("sonnet"),
 			},
 		}),
 		claudesdk.WithSettingSources(

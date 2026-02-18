@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -102,12 +103,12 @@ func (h *logrusHandler) buildKey(key string) string {
 		return key
 	}
 
-	result := ""
+	var result strings.Builder
 	for _, g := range h.groups {
-		result += g + "."
+		result.WriteString(g + ".")
 	}
 
-	return result + key
+	return result.String() + key
 }
 
 // slogToLogrusLevel maps slog levels to logrus levels.

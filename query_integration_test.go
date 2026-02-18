@@ -1,15 +1,15 @@
 //go:build integration
-// +build integration
 
 package claudesdk_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
-	claudesdk "github.com/wagiedev/claude-agent-sdk-go"
 	"github.com/stretchr/testify/require"
+	claudesdk "github.com/wagiedev/claude-agent-sdk-go"
 )
 
 // TestQueryIntegration tests end-to-end query execution.
@@ -27,7 +27,7 @@ func TestQueryIntegration(t *testing.T) {
 		claudesdk.WithMaxTurns(1),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -75,7 +75,7 @@ func TestQueryWithLoggerIntegration(t *testing.T) {
 		claudesdk.WithMaxTurns(1),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -98,7 +98,7 @@ func TestQueryContextTimeout(t *testing.T) {
 		claudesdk.WithPermissionMode("acceptEdits"),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 			// May fail to connect within timeout, which is acceptable
@@ -136,12 +136,12 @@ func TestQueryErrorHandling(t *testing.T) {
 				if tt.wantErr {
 					require.Error(t, err)
 					require.True(t, func() bool {
-						_, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err)
+						_, ok := errors.AsType[*claudesdk.CLINotFoundError](err)
 						return ok
 					}())
 				} else {
 					if err != nil && !func() bool {
-						_, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err)
+						_, ok := errors.AsType[*claudesdk.CLINotFoundError](err)
 						return ok
 					}() {
 						t.Fatalf("Unexpected error: %v", err)
@@ -165,7 +165,7 @@ func TestQuery_ContinuationOption(t *testing.T) {
 		claudesdk.WithMaxTurns(1),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -210,7 +210,7 @@ func TestQuery_MaxBudgetUsdOption(t *testing.T) {
 		claudesdk.WithMaxBudgetUSD(maxBudget),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -244,7 +244,7 @@ func TestQuery_WithToolUse(t *testing.T) {
 		claudesdk.WithMaxTurns(3),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -288,7 +288,7 @@ func TestQuery_WithAllowedAndDisallowedTools(t *testing.T) {
 		claudesdk.WithDisallowedTools("Bash"),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -337,7 +337,7 @@ func TestQuery_WithSettingSources(t *testing.T) {
 				claudesdk.WithSettingSources(tt.sources...),
 			) {
 				if err != nil {
-					if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+					if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 						t.Skip("Claude CLI not installed")
 					}
 

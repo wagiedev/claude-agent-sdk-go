@@ -9,7 +9,7 @@ go get github.com/wagiedev/claude-agent-sdk-go
 ```
 
 **Prerequisites:**
-- Go 1.25+
+- Go 1.26+
 - Claude Code CLI v2.0.0+ (`npm install -g @anthropic-ai/claude-code`)
 
 ## Quick Start
@@ -158,14 +158,14 @@ See [types.go](./types.go) for complete type definitions.
 
 ## Error Handling
 
-SDK errors can be inspected using `AsType`:
+SDK errors can be inspected using `errors.AsType` (Go 1.26+):
 
 ```go
-if cliErr, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); ok {
+if cliErr, ok := errors.AsType[*claudesdk.CLINotFoundError](err); ok {
     fmt.Println("Claude CLI not found:", cliErr)
 }
 
-if procErr, ok := claudesdk.AsType[*claudesdk.ProcessError](err); ok {
+if procErr, ok := errors.AsType[*claudesdk.ProcessError](err); ok {
     fmt.Println("Process failed:", procErr)
 }
 ```

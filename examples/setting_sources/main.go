@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"time"
 
 	claudesdk "github.com/wagiedev/claude-agent-sdk-go"
@@ -37,13 +38,7 @@ func extractSlashCommands(msg *claudesdk.SystemMessage) []string {
 
 // containsCommand checks if a command list contains a specific command.
 func containsCommand(commands []string, target string) bool {
-	for _, cmd := range commands {
-		if cmd == target {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(commands, target)
 }
 
 func defaultBehavior(sdkDir string) {

@@ -68,11 +68,8 @@ func TestSession_InitializationResult_DataRace(t *testing.T) {
 	var wg sync.WaitGroup
 
 	// Writer goroutine: simulates what Initialize() does (with mutex protection)
-	wg.Add(1)
 
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		for i := range iterations {
 			// This simulates what Initialize() does at line 141-143 (with mutex)
 			session.initMu.Lock()
@@ -82,14 +79,11 @@ func TestSession_InitializationResult_DataRace(t *testing.T) {
 			}
 			session.initMu.Unlock()
 		}
-	}()
+	})
 
 	// Reader goroutine: simulates concurrent GetInitializationResult() calls
-	wg.Add(1)
 
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		for range iterations {
 			// This calls the actual GetInitializationResult() which uses mutex
 			result := session.GetInitializationResult()
@@ -99,7 +93,7 @@ func TestSession_InitializationResult_DataRace(t *testing.T) {
 				_ = len(result)
 			}
 		}
-	}()
+	})
 
 	wg.Wait()
 }
@@ -124,11 +118,8 @@ func TestSession_InitializationResult_ConcurrentReadWrite(t *testing.T) {
 	var wg sync.WaitGroup
 
 	// Single writer (simulates Initialize with mutex protection)
-	wg.Add(1)
 
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		for i := range iterations {
 			session.initMu.Lock()
 			session.initializationResult = map[string]any{
@@ -137,15 +128,11 @@ func TestSession_InitializationResult_ConcurrentReadWrite(t *testing.T) {
 			}
 			session.initMu.Unlock()
 		}
-	}()
+	})
 
 	// Multiple readers using GetInitializationResult()
 	for range readers {
-		wg.Add(1)
-
-		go func() {
-			defer wg.Done()
-
+		wg.Go(func() {
 			for range iterations {
 				result := session.GetInitializationResult()
 				if result != nil {
@@ -154,7 +141,7 @@ func TestSession_InitializationResult_ConcurrentReadWrite(t *testing.T) {
 					_ = result["count"]
 				}
 			}
-		}()
+		})
 	}
 
 	wg.Wait()

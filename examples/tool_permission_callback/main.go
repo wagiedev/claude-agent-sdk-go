@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"maps"
 	"os"
 	"strings"
 	"time"
@@ -104,9 +105,7 @@ func myPermissionCallback(
 			fmt.Printf("   ⚠️  Redirecting write from %s to %s\n", filePath, safePath)
 
 			modifiedInput := make(map[string]any)
-			for k, v := range inputData {
-				modifiedInput[k] = v
-			}
+			maps.Copy(modifiedInput, inputData)
 
 			modifiedInput["file_path"] = safePath
 

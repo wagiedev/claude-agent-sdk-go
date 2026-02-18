@@ -476,11 +476,8 @@ func (c *Controller) handleControlRequest(ctx context.Context, msg map[string]an
 	c.inFlightMu.Unlock()
 
 	// Run handler in goroutine so read loop can process cancel requests
-	c.wg.Add(1)
 
-	go func() {
-		defer c.wg.Done()
-
+	c.wg.Go(func() {
 		// Cleanup: mark completed and remove from map
 		defer func() {
 			c.inFlightMu.Lock()
@@ -513,7 +510,7 @@ func (c *Controller) handleControlRequest(ctx context.Context, msg map[string]an
 		}
 
 		c.sendSuccessResponse(ctx, requestID, payload)
-	}()
+	})
 }
 
 // sendSuccessResponse sends a successful control response.

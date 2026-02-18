@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -74,9 +75,7 @@ func TestPermissionCallback_InputModification(t *testing.T) {
 		_ *ToolPermissionContext,
 	) (PermissionResult, error) {
 		updatedInput := make(map[string]any, len(input)+1)
-		for k, v := range input {
-			updatedInput[k] = v
-		}
+		maps.Copy(updatedInput, input)
 
 		updatedInput["safe_mode"] = true
 
@@ -253,7 +252,7 @@ func TestPermissionCallback_WithSuggestions(t *testing.T) {
 				Rules: []*PermissionRuleValue{
 					{
 						ToolName:    "Bash",
-						RuleContent: stringPtr("ls *"),
+						RuleContent: new("ls *"),
 					},
 				},
 				Behavior: &behavior,
@@ -292,7 +291,7 @@ func TestPermissionCallback_WithUpdatedPermissions(t *testing.T) {
 					Rules: []*PermissionRuleValue{
 						{
 							ToolName:    toolName,
-							RuleContent: stringPtr("echo *"),
+							RuleContent: new("echo *"),
 						},
 					},
 					Behavior:    &behavior,
@@ -357,7 +356,7 @@ func TestPermissionUpdateToDict(t *testing.T) {
 		Rules: []*PermissionRuleValue{
 			{
 				ToolName:    "Bash",
-				RuleContent: stringPtr("echo *"),
+				RuleContent: new("echo *"),
 			},
 			{
 				ToolName: "Read",
@@ -382,8 +381,10 @@ func TestPermissionUpdateToDict(t *testing.T) {
 }
 
 // stringPtr returns a pointer to the given string.
+//
+//go:fix inline
 func stringPtr(s string) *string {
-	return &s
+	return new(s)
 }
 
 // TestMatcherMatching tests hook matcher functionality.
@@ -501,7 +502,7 @@ func TestNewHookInputTypes(t *testing.T) {
 // TestNewHookSpecificOutputJSONSerialization tests JSON serialization of new specific output types.
 func TestNewHookSpecificOutputJSONSerialization(t *testing.T) {
 	t.Run("PostToolUseFailureSpecificOutput", func(t *testing.T) {
-		ctx := stringPtr("Extra context about the failure")
+		ctx := new("Extra context about the failure")
 		output := &PostToolUseFailureHookSpecificOutput{
 			HookEventName:     "PostToolUseFailure",
 			AdditionalContext: ctx,
@@ -526,7 +527,7 @@ func TestNewHookSpecificOutputJSONSerialization(t *testing.T) {
 	})
 
 	t.Run("NotificationSpecificOutput", func(t *testing.T) {
-		ctx := stringPtr("Notification context")
+		ctx := new("Notification context")
 		output := &NotificationHookSpecificOutput{
 			HookEventName:     "Notification",
 			AdditionalContext: ctx,
@@ -541,7 +542,7 @@ func TestNewHookSpecificOutputJSONSerialization(t *testing.T) {
 	})
 
 	t.Run("SubagentStartSpecificOutput", func(t *testing.T) {
-		ctx := stringPtr("Subagent context")
+		ctx := new("Subagent context")
 		output := &SubagentStartHookSpecificOutput{
 			HookEventName:     "SubagentStart",
 			AdditionalContext: ctx,
@@ -581,7 +582,7 @@ func TestNewHookSpecificOutputJSONSerialization(t *testing.T) {
 	})
 
 	t.Run("PreToolUseSpecificOutput has additionalContext", func(t *testing.T) {
-		ctx := stringPtr("Pre-tool context")
+		ctx := new("Pre-tool context")
 		output := &PreToolUseHookSpecificOutput{
 			HookEventName:     "PreToolUse",
 			AdditionalContext: ctx,

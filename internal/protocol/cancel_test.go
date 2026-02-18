@@ -295,7 +295,7 @@ func TestCancelRequest_DataRace(t *testing.T) {
 	})
 
 	// Start multiple concurrent operations
-	for i := 0; i < handlerCount; i++ {
+	for i := range handlerCount {
 		wg.Add(1)
 
 		go func(idx int) {
@@ -364,7 +364,7 @@ func TestCancelAllInFlight(t *testing.T) {
 	})
 
 	// Start multiple operations
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		go func(idx int) {
 			transport.sendToController(map[string]any{
 				"type":       "control_request",
@@ -377,7 +377,7 @@ func TestCancelAllInFlight(t *testing.T) {
 	}
 
 	// Wait for all handlers to start
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		select {
 		case <-handlerStarted:
 		case <-time.After(2 * time.Second):

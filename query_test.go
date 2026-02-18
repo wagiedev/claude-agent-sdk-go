@@ -29,7 +29,7 @@ func TestQueryCLINotFound(t *testing.T) {
 			t.Fatal("Expected error when CLI not found")
 		}
 
-		if _, ok := AsType[*CLINotFoundError](err); !ok {
+		if _, ok := errors.AsType[*CLINotFoundError](err); !ok {
 			t.Errorf("Expected CLINotFoundError, got: %v", err)
 		}
 
@@ -44,8 +44,8 @@ func TestQueryWithNoOptions(t *testing.T) {
 	// This should work if claude is in PATH
 	// If not, it should return CLINotFoundError or ProcessError
 	for _, err := range Query(ctx, "test") {
-		_, isCLINotFound := AsType[*CLINotFoundError](err)
-		_, isProcessError := AsType[*ProcessError](err)
+		_, isCLINotFound := errors.AsType[*CLINotFoundError](err)
+		_, isProcessError := errors.AsType[*ProcessError](err)
 
 		if err != nil && !isCLINotFound && !isProcessError {
 			t.Errorf("Unexpected error type: %v", err)
@@ -74,8 +74,8 @@ func TestQuery_WithOptions(t *testing.T) {
 		WithSettingSources(SettingSourceUser),
 	) {
 		// Either succeeds or returns CLINotFoundError or ProcessError (CLI issues)
-		_, isCLINotFound := AsType[*CLINotFoundError](err)
-		_, isProcessError := AsType[*ProcessError](err)
+		_, isCLINotFound := errors.AsType[*CLINotFoundError](err)
+		_, isProcessError := errors.AsType[*ProcessError](err)
 
 		if err != nil && !isCLINotFound && !isProcessError {
 			t.Errorf("Unexpected error type with full options: %v", err)
@@ -106,8 +106,8 @@ func TestQuery_WithCwd(t *testing.T) {
 		WithMaxTurns(1),
 	) {
 		// Either succeeds or returns CLINotFoundError or ProcessError (CLI issues)
-		_, isCLINotFound := AsType[*CLINotFoundError](err)
-		_, isProcessError := AsType[*ProcessError](err)
+		_, isCLINotFound := errors.AsType[*CLINotFoundError](err)
+		_, isProcessError := errors.AsType[*ProcessError](err)
 
 		if err != nil && !isCLINotFound && !isProcessError {
 			t.Errorf("Unexpected error type with Cwd option: %v", err)
@@ -131,8 +131,8 @@ func TestQuery_WithEnv(t *testing.T) {
 		}),
 	) {
 		// Either succeeds or returns CLINotFoundError or ProcessError (CLI issues)
-		_, isCLINotFound := AsType[*CLINotFoundError](err)
-		_, isProcessError := AsType[*ProcessError](err)
+		_, isCLINotFound := errors.AsType[*CLINotFoundError](err)
+		_, isProcessError := errors.AsType[*ProcessError](err)
 
 		if err != nil && !isCLINotFound && !isProcessError {
 			t.Errorf("Unexpected error type with Env option: %v", err)
@@ -159,8 +159,8 @@ func TestQuery_WithSystemPromptPreset(t *testing.T) {
 		WithMaxTurns(1),
 	) {
 		// Either succeeds or returns CLINotFoundError or ProcessError (CLI issues)
-		_, isCLINotFound := AsType[*CLINotFoundError](err)
-		_, isProcessError := AsType[*ProcessError](err)
+		_, isCLINotFound := errors.AsType[*CLINotFoundError](err)
+		_, isProcessError := errors.AsType[*ProcessError](err)
 
 		if err != nil && !isCLINotFound && !isProcessError {
 			t.Errorf("Unexpected error type with SystemPromptPreset: %v", err)
@@ -190,8 +190,8 @@ func TestQuery_WithAgents(t *testing.T) {
 		WithMaxTurns(1),
 	) {
 		// Either succeeds or returns CLINotFoundError or ProcessError (CLI issues)
-		_, isCLINotFound := AsType[*CLINotFoundError](err)
-		_, isProcessError := AsType[*ProcessError](err)
+		_, isCLINotFound := errors.AsType[*CLINotFoundError](err)
+		_, isProcessError := errors.AsType[*ProcessError](err)
 
 		if err != nil && !isCLINotFound && !isProcessError {
 			t.Errorf("Unexpected error type with Agents option: %v", err)
@@ -223,8 +223,8 @@ func TestQuery_WithOutputFormat(t *testing.T) {
 		WithMaxTurns(1),
 	) {
 		// Either succeeds or returns CLINotFoundError or ProcessError (CLI issues)
-		_, isCLINotFound := AsType[*CLINotFoundError](err)
-		_, isProcessError := AsType[*ProcessError](err)
+		_, isCLINotFound := errors.AsType[*CLINotFoundError](err)
+		_, isProcessError := errors.AsType[*ProcessError](err)
 
 		if err != nil && !isCLINotFound && !isProcessError {
 			t.Errorf("Unexpected error type with OutputFormat option: %v", err)
@@ -245,8 +245,8 @@ func TestQuery_WithResume(t *testing.T) {
 		WithMaxTurns(1),
 	) {
 		// May fail due to invalid session, but should not be unexpected error type
-		_, isCLINotFound := AsType[*CLINotFoundError](err)
-		_, isProcessError := AsType[*ProcessError](err)
+		_, isCLINotFound := errors.AsType[*CLINotFoundError](err)
+		_, isProcessError := errors.AsType[*ProcessError](err)
 
 		if err != nil && !isCLINotFound && !isProcessError {
 			t.Logf("Error with Resume option (may be expected): %v", err)
@@ -271,8 +271,8 @@ func TestQuery_WithExtraArgs(t *testing.T) {
 		WithMaxTurns(1),
 	) {
 		// Either succeeds or returns CLINotFoundError or ProcessError (CLI issues)
-		_, isCLINotFound := AsType[*CLINotFoundError](err)
-		_, isProcessError := AsType[*ProcessError](err)
+		_, isCLINotFound := errors.AsType[*CLINotFoundError](err)
+		_, isProcessError := errors.AsType[*ProcessError](err)
 
 		if err != nil && !isCLINotFound && !isProcessError {
 			t.Errorf("Unexpected error type with ExtraArgs option: %v", err)
@@ -457,7 +457,7 @@ func TestQuery_ContextCancelMidIteration(t *testing.T) {
 		// Should get either CLI not found (fast path) or context deadline exceeded
 		require.Error(t, gotError)
 
-		_, isCLINotFound := AsType[*CLINotFoundError](gotError)
+		_, isCLINotFound := errors.AsType[*CLINotFoundError](gotError)
 		isContextErr := gotError == context.DeadlineExceeded ||
 			gotError == context.Canceled
 
@@ -512,7 +512,7 @@ func TestQueryStream_ContextCancelMidIteration(t *testing.T) {
 		// Should get either CLI not found or context error
 		require.Error(t, gotError)
 
-		_, isCLINotFound := AsType[*CLINotFoundError](gotError)
+		_, isCLINotFound := errors.AsType[*CLINotFoundError](gotError)
 		isContextErr := gotError == context.DeadlineExceeded ||
 			gotError == context.Canceled
 

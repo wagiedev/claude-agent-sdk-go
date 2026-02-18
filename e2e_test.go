@@ -1,10 +1,10 @@
 //go:build integration
-// +build integration
 
 package claudesdk_test
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"sync/atomic"
@@ -40,7 +40,7 @@ func TestAgentsAndSettings_AgentDefinition(t *testing.T) {
 		claudesdk.WithMaxTurns(1),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -73,7 +73,7 @@ func TestAgentsAndSettings_SettingSources(t *testing.T) {
 		claudesdk.WithMaxTurns(1),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -103,7 +103,7 @@ func TestAgentsAndSettings_NoSettingSources(t *testing.T) {
 		claudesdk.WithMaxTurns(1),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -148,7 +148,7 @@ func TestToolPermissions_AllowExplicit(t *testing.T) {
 		}),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -197,7 +197,7 @@ func TestToolPermissions_Deny(t *testing.T) {
 		}),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -249,7 +249,7 @@ func TestToolPermissions_ModifyInput(t *testing.T) {
 		}),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -278,7 +278,7 @@ func TestPartialMessages_StreamEventsReceived(t *testing.T) {
 		claudesdk.WithMaxTurns(1),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -307,7 +307,7 @@ func TestPartialMessages_EventTypes(t *testing.T) {
 		claudesdk.WithMaxTurns(1),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -342,7 +342,7 @@ func TestPartialMessages_DisabledByDefault(t *testing.T) {
 		claudesdk.WithMaxTurns(1),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -375,7 +375,7 @@ func TestDynamicControl_SetPermissionMode(t *testing.T) {
 		claudesdk.WithMaxTurns(2),
 	)
 	if err != nil {
-		if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+		if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 			t.Skip("Claude CLI not installed")
 		}
 
@@ -411,7 +411,7 @@ func TestDynamicControl_SetModel(t *testing.T) {
 		claudesdk.WithMaxTurns(2),
 	)
 	if err != nil {
-		if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+		if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 			t.Skip("Claude CLI not installed")
 		}
 
@@ -447,7 +447,7 @@ func TestDynamicControl_Interrupt(t *testing.T) {
 		claudesdk.WithMaxTurns(5),
 	)
 	if err != nil {
-		if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+		if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 			t.Skip("Claude CLI not installed")
 		}
 
@@ -514,7 +514,7 @@ func TestStructuredOutput_JSONSchema(t *testing.T) {
 		}),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -565,7 +565,7 @@ func TestStructuredOutput_RequiredFields(t *testing.T) {
 		}),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -607,7 +607,7 @@ func TestStderrCallback_ReceivesOutput(t *testing.T) {
 		}),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -639,7 +639,7 @@ func TestStderrCallback_CapturesDebugInfo(t *testing.T) {
 		}),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -695,7 +695,7 @@ func TestHooks_PreToolUse(t *testing.T) {
 		}),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -743,7 +743,7 @@ func TestHooks_PostToolUse(t *testing.T) {
 		}),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -798,7 +798,7 @@ func TestHooks_BlockTool(t *testing.T) {
 		}),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -856,7 +856,7 @@ func TestMCPTools_Registration(t *testing.T) {
 		claudesdk.WithSDKTools(tools),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -923,7 +923,7 @@ func TestMCPTools_Execution(t *testing.T) {
 		claudesdk.WithSDKTools(tools),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -975,7 +975,7 @@ func TestMCPTools_ReturnValue(t *testing.T) {
 		claudesdk.WithSDKTools(tools),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -1073,7 +1073,7 @@ You are a simple test agent. When asked a question, provide a brief, helpful ans
 		claudesdk.WithMaxTurns(1),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -1195,7 +1195,7 @@ func TestMCPTools_PermissionEnforcement(t *testing.T) {
 		claudesdk.WithAllowedTools("mcp__sdk__greet"),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -1257,7 +1257,7 @@ func TestHooks_WithAdditionalContext(t *testing.T) {
 		}),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -1306,7 +1306,7 @@ func TestStructuredOutput_WithEnum(t *testing.T) {
 		}),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -1390,7 +1390,7 @@ func TestStructuredOutput_WithTools(t *testing.T) {
 		}),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -1439,7 +1439,7 @@ func TestPartialMessages_ThinkingDeltas(t *testing.T) {
 		claudesdk.WithModel("claude-sonnet-4-5-20250514"),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -1504,7 +1504,7 @@ func TestMaxBudgetUSD_LimitEnforced(t *testing.T) {
 		claudesdk.WithMaxBudgetUSD(budget),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -1559,7 +1559,7 @@ func TestMaxBudgetUSD_ZeroBudget(t *testing.T) {
 		claudesdk.WithMaxBudgetUSD(budget),
 	) {
 		if err != nil {
-			if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+			if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 				t.Skip("Claude CLI not installed")
 			}
 
@@ -1598,7 +1598,7 @@ func TestQuery_CloseMidStream(t *testing.T) {
 		claudesdk.WithMaxTurns(5),
 	)
 	if err != nil {
-		if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+		if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 			t.Skip("Claude CLI not installed")
 		}
 
@@ -1677,7 +1677,7 @@ func TestClient_ContextCancelDuringQuery(t *testing.T) {
 		claudesdk.WithMaxTurns(5),
 	)
 	if err != nil {
-		if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+		if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 			t.Skip("Claude CLI not installed")
 		}
 
@@ -1748,7 +1748,7 @@ func TestClient_RapidCloseReopen(t *testing.T) {
 				claudesdk.WithMaxTurns(1),
 			)
 			if err != nil {
-				if func() bool { _, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
+				if func() bool { _, ok := errors.AsType[*claudesdk.CLINotFoundError](err); return ok }() {
 					t.Skip("Claude CLI not installed")
 				}
 

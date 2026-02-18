@@ -3,6 +3,7 @@ package claudesdk
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sync"
 	"testing"
@@ -198,7 +199,7 @@ func TestClient_ConnectWithCLINotFound(t *testing.T) {
 		WithCliPath("/nonexistent/path/to/claude"),
 	)
 	require.Error(t, err)
-	_, ok := AsType[*CLINotFoundError](err)
+	_, ok := errors.AsType[*CLINotFoundError](err)
 	require.True(t, ok)
 }
 
@@ -284,7 +285,7 @@ func TestClient_WithOptions(t *testing.T) {
 
 			err := client.Start(ctx, opts...)
 			require.Error(t, err)
-			_, ok := AsType[*CLINotFoundError](err)
+			_, ok := errors.AsType[*CLINotFoundError](err)
 			require.True(t, ok)
 		})
 	}
@@ -300,7 +301,7 @@ func TestClient_DoubleConnect(t *testing.T) {
 	// First connect fails with CLI not found
 	err := client.Start(ctx, WithCliPath("/nonexistent/claude"))
 	require.Error(t, err)
-	_, ok := AsType[*CLINotFoundError](err)
+	_, ok := errors.AsType[*CLINotFoundError](err)
 	require.True(t, ok)
 
 	// Second connect should also fail (either CLI not found or already connected)
@@ -343,7 +344,7 @@ func TestClient_WithSessionID(t *testing.T) {
 	)
 
 	require.Error(t, err)
-	_, ok := AsType[*CLINotFoundError](err)
+	_, ok := errors.AsType[*CLINotFoundError](err)
 	require.True(t, ok)
 }
 
@@ -362,7 +363,7 @@ func TestClient_WithEnv(t *testing.T) {
 	)
 
 	require.Error(t, err)
-	_, ok := AsType[*CLINotFoundError](err)
+	_, ok := errors.AsType[*CLINotFoundError](err)
 	require.True(t, ok)
 }
 
@@ -377,7 +378,7 @@ func TestClient_CleanupOnError(t *testing.T) {
 		// Connect should fail
 		err := client.Start(ctx, WithCliPath("/nonexistent/claude"))
 		require.Error(t, err)
-		_, ok := AsType[*CLINotFoundError](err)
+		_, ok := errors.AsType[*CLINotFoundError](err)
 		require.True(t, ok)
 
 		// Close should be safe to call after failed connect
@@ -700,7 +701,7 @@ func TestClient_WithOptionsVerification(t *testing.T) {
 			// Connect will fail with CLI not found, but options should be validated
 			err := client.Start(ctx, opts...)
 			require.Error(t, err)
-			_, ok := AsType[*CLINotFoundError](err)
+			_, ok := errors.AsType[*CLINotFoundError](err)
 			require.True(t, ok)
 		})
 	}
@@ -716,15 +717,15 @@ func TestClient_WithSandboxSettings(t *testing.T) {
 	err := client.Start(ctx,
 		WithCliPath("/nonexistent/claude"),
 		WithSandboxSettings(&SandboxSettings{
-			Enabled: boolPtr(true),
+			Enabled: new(true),
 			Network: &SandboxNetworkConfig{
-				AllowAllUnixSockets: boolPtr(false),
-				AllowLocalBinding:   boolPtr(true),
+				AllowAllUnixSockets: new(false),
+				AllowLocalBinding:   new(true),
 			},
 		}),
 	)
 	require.Error(t, err)
-	_, ok := AsType[*CLINotFoundError](err)
+	_, ok := errors.AsType[*CLINotFoundError](err)
 	require.True(t, ok)
 }
 
@@ -747,7 +748,7 @@ func TestClient_WithMCPServers(t *testing.T) {
 		}),
 	)
 	require.Error(t, err)
-	_, ok := AsType[*CLINotFoundError](err)
+	_, ok := errors.AsType[*CLINotFoundError](err)
 	require.True(t, ok)
 }
 
@@ -771,7 +772,7 @@ func TestClient_WithAgents(t *testing.T) {
 		}),
 	)
 	require.Error(t, err)
-	_, ok := AsType[*CLINotFoundError](err)
+	_, ok := errors.AsType[*CLINotFoundError](err)
 	require.True(t, ok)
 }
 
@@ -1006,7 +1007,7 @@ func TestClient_SessionIDHandling(t *testing.T) {
 
 		// Verify CLI not found (expected)
 		require.Error(t, err)
-		_, ok := AsType[*CLINotFoundError](err)
+		_, ok := errors.AsType[*CLINotFoundError](err)
 		require.True(t, ok)
 	})
 
@@ -1022,7 +1023,7 @@ func TestClient_SessionIDHandling(t *testing.T) {
 		)
 
 		require.Error(t, err)
-		_, ok := AsType[*CLINotFoundError](err)
+		_, ok := errors.AsType[*CLINotFoundError](err)
 		require.True(t, ok)
 	})
 }
@@ -1167,7 +1168,7 @@ func TestClient_StartWithPrompt(t *testing.T) {
 			WithCliPath("/nonexistent/claude"),
 		)
 		require.Error(t, err)
-		_, ok := AsType[*CLINotFoundError](err)
+		_, ok := errors.AsType[*CLINotFoundError](err)
 		require.True(t, ok)
 	})
 
@@ -1181,7 +1182,7 @@ func TestClient_StartWithPrompt(t *testing.T) {
 			WithCliPath("/nonexistent/claude"),
 		)
 		require.Error(t, err)
-		_, ok := AsType[*CLINotFoundError](err)
+		_, ok := errors.AsType[*CLINotFoundError](err)
 		require.True(t, ok)
 	})
 
@@ -1211,7 +1212,7 @@ func TestClient_StartWithPrompt(t *testing.T) {
 			WithSystemPrompt("You are a helpful assistant."),
 		)
 		require.Error(t, err)
-		_, ok := AsType[*CLINotFoundError](err)
+		_, ok := errors.AsType[*CLINotFoundError](err)
 		require.True(t, ok)
 	})
 }
@@ -1230,7 +1231,7 @@ func TestClient_StartWithStream(t *testing.T) {
 			WithCliPath("/nonexistent/claude"),
 		)
 		require.Error(t, err)
-		_, ok := AsType[*CLINotFoundError](err)
+		_, ok := errors.AsType[*CLINotFoundError](err)
 		require.True(t, ok)
 	})
 
@@ -1250,7 +1251,7 @@ func TestClient_StartWithStream(t *testing.T) {
 			WithCliPath("/nonexistent/claude"),
 		)
 		require.Error(t, err)
-		_, ok := AsType[*CLINotFoundError](err)
+		_, ok := errors.AsType[*CLINotFoundError](err)
 		require.True(t, ok)
 	})
 
@@ -1266,7 +1267,7 @@ func TestClient_StartWithStream(t *testing.T) {
 			WithCliPath("/nonexistent/claude"),
 		)
 		require.Error(t, err)
-		_, ok := AsType[*CLINotFoundError](err)
+		_, ok := errors.AsType[*CLINotFoundError](err)
 		require.True(t, ok)
 	})
 
@@ -1305,7 +1306,7 @@ func TestClient_StartWithStream(t *testing.T) {
 			WithCliPath("/nonexistent/claude"),
 		)
 		require.Error(t, err)
-		_, ok := AsType[*CLINotFoundError](err)
+		_, ok := errors.AsType[*CLINotFoundError](err)
 		require.True(t, ok)
 	})
 }
@@ -1322,7 +1323,7 @@ func TestClient_StartWithPrompt_AlreadyConnected(t *testing.T) {
 		WithCliPath("/nonexistent/claude"),
 	)
 	require.Error(t, err)
-	_, ok := AsType[*CLINotFoundError](err)
+	_, ok := errors.AsType[*CLINotFoundError](err)
 	require.True(t, ok)
 
 	// Second call should also fail with CLI not found
@@ -1346,7 +1347,7 @@ func TestClient_StartWithStream_AlreadyConnected(t *testing.T) {
 		WithCliPath("/nonexistent/claude"),
 	)
 	require.Error(t, err)
-	_, ok := AsType[*CLINotFoundError](err)
+	_, ok := errors.AsType[*CLINotFoundError](err)
 	require.True(t, ok)
 
 	// Second call should also fail
@@ -1434,7 +1435,7 @@ func TestClient_CloseAfterFailedStart(t *testing.T) {
 	// First Start fails with CLI not found (client not marked as connected)
 	err := client.Start(context.Background(), WithCliPath("/nonexistent/claude"))
 	require.Error(t, err)
-	_, ok := AsType[*CLINotFoundError](err)
+	_, ok := errors.AsType[*CLINotFoundError](err)
 	require.True(t, ok)
 
 	// Close the client
@@ -1444,11 +1445,6 @@ func TestClient_CloseAfterFailedStart(t *testing.T) {
 	// Start should return ErrClientClosed
 	err = client.Start(context.Background(), WithCliPath("/nonexistent/claude"))
 	require.ErrorIs(t, err, ErrClientClosed)
-}
-
-// boolPtr is a helper for pointer creation.
-func boolPtr(b bool) *bool {
-	return &b
 }
 
 // =============================================================================

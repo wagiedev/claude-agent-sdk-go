@@ -75,10 +75,10 @@
 //
 //	messages, err := claudesdk.Query(ctx, prompt, claudesdk.WithPermissionMode("acceptEdits"))
 //	if err != nil {
-//	    if cliErr, ok := claudesdk.AsType[*claudesdk.CLINotFoundError](err); ok {
+//	    if cliErr, ok := errors.AsType[*claudesdk.CLINotFoundError](err); ok {
 //	        log.Fatalf("Claude CLI not installed, searched: %v", cliErr.SearchedPaths)
 //	    }
-//	    if procErr, ok := claudesdk.AsType[*claudesdk.ProcessError](err); ok {
+//	    if procErr, ok := errors.AsType[*claudesdk.ProcessError](err); ok {
 //	        log.Fatalf("CLI process failed with exit code %d: %s", procErr.ExitCode, procErr.Stderr)
 //	    }
 //	    log.Fatal(err)

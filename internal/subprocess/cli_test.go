@@ -821,11 +821,7 @@ func TestStderrGoroutine_ContextCancellation(t *testing.T) {
 
 	scanDone := make(chan struct{})
 
-	wg.Add(1)
-
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		innerDone := make(chan struct{})
 
 		go func() {
@@ -846,7 +842,7 @@ func TestStderrGoroutine_ContextCancellation(t *testing.T) {
 		}
 
 		close(scanDone)
-	}()
+	})
 
 	// Cancel context
 	cancel()
@@ -866,17 +862,13 @@ func TestStderrGoroutine_NoGoroutineLeak(t *testing.T) {
 	before := runtime.NumGoroutine()
 
 	// Run the cancellation test multiple times
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		stderrReader, stderrWriter := io.Pipe()
 		ctx, cancel := context.WithCancel(context.Background())
 
 		var wg sync.WaitGroup
 
-		wg.Add(1)
-
-		go func() {
-			defer wg.Done()
-
+		wg.Go(func() {
 			innerDone := make(chan struct{})
 
 			go func() {
@@ -894,7 +886,7 @@ func TestStderrGoroutine_NoGoroutineLeak(t *testing.T) {
 				stderrReader.Close()
 				<-innerDone
 			}
-		}()
+		})
 
 		cancel()
 		wg.Wait()
@@ -985,10 +977,7 @@ func TestStderrScanner_TimeoutOnBlockedExit(t *testing.T) {
 
 	outerDone := make(chan struct{})
 
-	wg.Add(1)
-
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		defer close(outerDone)
 
 		scanDone := make(chan struct{})
@@ -1017,7 +1006,7 @@ func TestStderrScanner_TimeoutOnBlockedExit(t *testing.T) {
 				log.Warn("Stderr scanner did not exit within timeout")
 			}
 		}
-	}()
+	})
 
 	// Cancel context
 	cancel()
@@ -1046,20 +1035,17 @@ func TestStderrScanner_GoroutineLeakWithHungProcess(t *testing.T) {
 
 	const iterations = 3
 
-	for i := 0; i < iterations; i++ {
+	for i := range iterations {
 		// Create a pipe to simulate stderr
 		stderrReader, stderrWriter := io.Pipe()
 
 		ctx, cancel := context.WithCancel(context.Background())
 
 		var wg sync.WaitGroup
-		wg.Add(1)
 
 		// This matches the new simplified pattern in cli.go:
 		// Single goroutine with cooperative context checking
-		go func() {
-			defer wg.Done()
-
+		wg.Go(func() {
 			scanner := bufio.NewScanner(stderrReader)
 			for scanner.Scan() {
 				// Check context between lines for cooperative cancellation
@@ -1071,7 +1057,7 @@ func TestStderrScanner_GoroutineLeakWithHungProcess(t *testing.T) {
 				// Process line (simulated)
 				_ = scanner.Text()
 			}
-		}()
+		})
 
 		// Cancel context
 		cancel()
@@ -1122,17 +1108,13 @@ func TestStderrScanner_GoroutineLeakOnContextCancel(t *testing.T) {
 
 	const iterations = 5
 
-	for i := 0; i < iterations; i++ {
+	for i := range iterations {
 		stderrReader, stderrWriter := io.Pipe()
 		ctx, cancel := context.WithCancel(context.Background())
 
 		var wg sync.WaitGroup
 
-		wg.Add(1)
-
-		go func() {
-			defer wg.Done()
-
+		wg.Go(func() {
 			innerDone := make(chan struct{})
 
 			go func() {
@@ -1155,7 +1137,7 @@ func TestStderrScanner_GoroutineLeakOnContextCancel(t *testing.T) {
 				// properly unblock the scanner's blocked Read() call
 				<-innerDone
 			}
-		}()
+		})
 
 		// Cancel while scanner may be blocked waiting for input
 		cancel()

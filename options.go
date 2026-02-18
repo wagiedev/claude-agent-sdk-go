@@ -306,6 +306,28 @@ func WithPlugins(plugins ...*SdkPluginConfig) Option {
 }
 
 // WithOutputFormat specifies a JSON schema for structured output.
+//
+// The canonical format uses a wrapper object:
+//
+//	claudesdk.WithOutputFormat(map[string]any{
+//	    "type": "json_schema",
+//	    "schema": map[string]any{
+//	        "type":       "object",
+//	        "properties": map[string]any{...},
+//	        "required":   []string{...},
+//	    },
+//	})
+//
+// Raw JSON schemas (without the wrapper) are also accepted and auto-wrapped:
+//
+//	claudesdk.WithOutputFormat(map[string]any{
+//	    "type":       "object",
+//	    "properties": map[string]any{...},
+//	    "required":   []string{...},
+//	})
+//
+// Structured output is available on [ResultMessage].StructuredOutput (parsed)
+// or [ResultMessage].Result (JSON string).
 func WithOutputFormat(format map[string]any) Option {
 	return func(o *ClaudeAgentOptions) {
 		o.OutputFormat = format

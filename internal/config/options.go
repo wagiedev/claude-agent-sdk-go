@@ -182,6 +182,9 @@ type Options struct {
 	Plugins []*PluginConfig
 
 	// OutputFormat specifies a JSON schema for structured output.
+	// Accepts either the wrapped format {"type": "json_schema", "schema": {...}}
+	// or a raw JSON schema {"type": "object", "properties": {...}} which is
+	// auto-detected and used directly.
 	OutputFormat map[string]any
 
 	// EnableFileCheckpointing enables file change tracking and rewinding.

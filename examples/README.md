@@ -55,6 +55,9 @@ This is ideal for:
 | `max_budget_usd` | Setting cost limits |
 | `setting_sources` | Configuration sources |
 | `include_partial_messages` | Handling partial/streaming messages |
+| `structured_output` | Using `WithOutputFormat()` for structured JSON responses |
+| `parallel_queries` | Running concurrent `Query()` calls with errgroup |
+| `pipeline` | Multi-step LLM orchestration with Go control flow |
 
 ## Running Examples
 

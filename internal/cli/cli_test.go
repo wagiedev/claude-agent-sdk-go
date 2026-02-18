@@ -533,6 +533,89 @@ func TestBuildArgs_WithOutputFormat(t *testing.T) {
 	}
 }
 
+// TestBuildArgs_WithOutputFormatRawSchema tests that raw JSON schemas
+// (without the {"type": "json_schema", "schema": ...} wrapper) are
+// auto-detected and produce the --json-schema flag.
+func TestBuildArgs_WithOutputFormatRawSchema(t *testing.T) {
+	tests := []struct {
+		name         string
+		outputFormat map[string]any
+		wantFlag     bool
+		wantContains string
+	}{
+		{
+			name: "raw schema with properties",
+			outputFormat: map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"name": map[string]any{"type": "string"},
+				},
+				"required": []string{"name"},
+			},
+			wantFlag:     true,
+			wantContains: `"name"`,
+		},
+		{
+			name: "wrapped schema still works",
+			outputFormat: map[string]any{
+				"type": "json_schema",
+				"schema": map[string]any{
+					"type": "object",
+					"properties": map[string]any{
+						"age": map[string]any{"type": "integer"},
+					},
+				},
+			},
+			wantFlag:     true,
+			wantContains: `"age"`,
+		},
+		{
+			name:         "nil output format",
+			outputFormat: nil,
+			wantFlag:     false,
+		},
+		{
+			name: "no properties and not json_schema type",
+			outputFormat: map[string]any{
+				"type": "text",
+			},
+			wantFlag: false,
+		},
+		{
+			name:         "empty map",
+			outputFormat: map[string]any{},
+			wantFlag:     false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			options := &config.Options{
+				OutputFormat: tt.outputFormat,
+			}
+
+			args := BuildArgs("test", options, false)
+
+			flagIdx := slices.Index(args, "--json-schema")
+			if !tt.wantFlag {
+				require.Equal(t, -1, flagIdx,
+					"Expected --json-schema flag to be absent")
+
+				return
+			}
+
+			require.NotEqual(t, -1, flagIdx,
+				"Expected --json-schema flag to be present")
+			require.Less(t, flagIdx+1, len(args),
+				"Expected value after --json-schema flag")
+
+			if tt.wantContains != "" {
+				require.Contains(t, args[flagIdx+1], tt.wantContains)
+			}
+		})
+	}
+}
+
 // TestBuildArgs_WithBetas tests beta feature flags.
 func TestBuildArgs_WithBetas(t *testing.T) {
 	options := &config.Options{

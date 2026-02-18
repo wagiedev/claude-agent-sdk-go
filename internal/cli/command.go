@@ -198,15 +198,11 @@ func BuildArgs(
 	}
 
 	// Output format (structured output JSON schema)
-	// Extract schema from output_format structure if provided
-	// Expected: {"type": "json_schema", "schema": {...}}
 	if options.OutputFormat != nil {
-		if formatType, ok := options.OutputFormat["type"].(string); ok && formatType == "json_schema" {
-			if schema, ok := options.OutputFormat["schema"]; ok && schema != nil {
-				schemaJSON, err := json.Marshal(schema)
-				if err == nil {
-					args = append(args, "--json-schema", string(schemaJSON))
-				}
+		if schema := extractJSONSchema(options.OutputFormat); schema != nil {
+			schemaJSON, err := json.Marshal(schema)
+			if err == nil {
+				args = append(args, "--json-schema", string(schemaJSON))
 			}
 		}
 	}
@@ -276,6 +272,32 @@ func buildSettingsValue(options *config.Options) string {
 	}
 
 	return string(result)
+}
+
+// extractJSONSchema extracts the inner JSON schema from an OutputFormat map.
+// It supports two formats:
+//   - Wrapped: {"type": "json_schema", "schema": {...}} — returns the inner schema.
+//   - Raw: {"type": "object", "properties": {...}} — returns the map as-is (auto-wrap).
+//
+// Returns nil if the map doesn't match either format.
+func extractJSONSchema(outputFormat map[string]any) map[string]any {
+	formatType, _ := outputFormat["type"].(string)
+
+	// Wrapped format: {"type": "json_schema", "schema": {...}}
+	if formatType == "json_schema" {
+		if schema, ok := outputFormat["schema"].(map[string]any); ok {
+			return schema
+		}
+
+		return nil
+	}
+
+	// Raw schema: has "properties" key (e.g. {"type": "object", "properties": {...}})
+	if _, hasProperties := outputFormat["properties"]; hasProperties {
+		return outputFormat
+	}
+
+	return nil
 }
 
 // BuildEnvironment constructs the environment variables for the CLI process.

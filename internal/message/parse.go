@@ -47,13 +47,9 @@ func Parse(log *slog.Logger, data map[string]any) (Message, error) {
 	case "stream_event":
 		msg, err = parseStreamEvent(data)
 	default:
-		log.Warn("Unknown message type", "message_type", msgType)
+		log.Debug("Skipping unknown message type", "message_type", msgType)
 
-		return nil, &errors.MessageParseError{
-			Message: fmt.Sprintf("unknown message type: %s", msgType),
-			Err:     fmt.Errorf("unknown message type: %s", msgType),
-			Data:    data,
-		}
+		return nil, errors.ErrUnknownMessageType
 	}
 
 	if err != nil {

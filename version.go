@@ -4,4 +4,4 @@ package claudesdk
 const Version = "0.1.0"
 
 // MinimumCLIVersion is the minimum required Claude CLI version.
-const MinimumCLIVersion = "2.0.0"
+const MinimumCLIVersion = "2.1.45"

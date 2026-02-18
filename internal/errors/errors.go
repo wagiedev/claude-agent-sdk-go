@@ -45,6 +45,10 @@ var (
 
 	// ErrOperationCancelled indicates an operation was cancelled via cancel request.
 	ErrOperationCancelled = errors.New("operation cancelled")
+
+	// ErrUnknownMessageType indicates the message type is not recognized by the SDK.
+	// Callers should skip these messages rather than treating them as fatal.
+	ErrUnknownMessageType = errors.New("unknown message type")
 )
 
 // CLINotFoundError indicates the Claude CLI binary was not found.

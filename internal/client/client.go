@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"iter"
@@ -373,6 +374,10 @@ func (c *Client) readLoop(ctx context.Context) error {
 
 			// Control messages are already filtered by the controller
 			parsed, err := message.Parse(c.log, msg)
+			if stderrors.Is(err, errors.ErrUnknownMessageType) {
+				continue
+			}
+
 			if err != nil {
 				c.log.Warn("Failed to parse message", "error", err)
 				c.setFatalError(fmt.Errorf("parse message: %w", err))

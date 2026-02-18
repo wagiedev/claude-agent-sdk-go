@@ -3,6 +3,7 @@ package claudesdk
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"iter"
 	"log/slog"
@@ -14,6 +15,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/wagiedev/claude-agent-sdk-go/internal/config"
+	sdkerrors "github.com/wagiedev/claude-agent-sdk-go/internal/errors"
 	"github.com/wagiedev/claude-agent-sdk-go/internal/message"
 	"github.com/wagiedev/claude-agent-sdk-go/internal/protocol"
 	"github.com/wagiedev/claude-agent-sdk-go/internal/subprocess"
@@ -243,6 +245,10 @@ func Query(
 
 				// Parse the message
 				parsed, err := message.Parse(log, msg)
+				if errors.Is(err, sdkerrors.ErrUnknownMessageType) {
+					continue
+				}
+
 				if err != nil {
 					log.Warn("Failed to parse message", "error", err)
 
@@ -529,6 +535,10 @@ func QueryStream(
 				}
 
 				parsed, err := message.Parse(log, msg)
+				if errors.Is(err, sdkerrors.ErrUnknownMessageType) {
+					continue
+				}
+
 				if err != nil {
 					log.Warn("Failed to parse message", "error", err)
 

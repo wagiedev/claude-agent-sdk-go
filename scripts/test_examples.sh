@@ -18,6 +18,37 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
+# Portability helpers (macOS ships bash 3.2 which lacks mapfile, timeout, etc.)
+# ---------------------------------------------------------------------------
+
+# timeout(1) is not available on macOS by default (it's GNU coreutils).
+# Provide a fallback that uses a background sleep + kill approach.
+if ! command -v timeout >/dev/null 2>&1; then
+    if command -v gtimeout >/dev/null 2>&1; then
+        timeout() { gtimeout "$@"; }
+    else
+        timeout() {
+            local secs="$1"; shift
+            ("$@") &
+            local cmd_pid=$!
+            (sleep "$secs" && kill "$cmd_pid" 2>/dev/null) &
+            local timer_pid=$!
+            local rc=0
+            wait "$cmd_pid" 2>/dev/null || rc=$?
+            # If the timer is still running, the command finished on its own.
+            if kill -0 "$timer_pid" 2>/dev/null; then
+                kill "$timer_pid" 2>/dev/null || true
+                wait "$timer_pid" 2>/dev/null || true
+                return $rc
+            fi
+            # Timer already exited — it fired and killed the command.
+            wait "$timer_pid" 2>/dev/null || true
+            return 124
+        }
+    fi
+fi
+
+# ---------------------------------------------------------------------------
 # Signal handling
 # ---------------------------------------------------------------------------
 INTERRUPTED=false
@@ -27,15 +58,17 @@ cleanup() {
     INTERRUPTED=true
     echo ""
     echo "Interrupted — killing workers..."
-    for pid in "${WORKER_PIDS[@]}"; do
-        pkill -P "$pid" 2>/dev/null || true
-        kill "$pid" 2>/dev/null || true
-    done
-    # Wait briefly then force-kill stragglers.
-    sleep 0.3
-    for pid in "${WORKER_PIDS[@]}"; do
-        kill -9 "$pid" 2>/dev/null || true
-    done
+    if [[ ${#WORKER_PIDS[@]} -gt 0 ]]; then
+        for pid in "${WORKER_PIDS[@]}"; do
+            pkill -P "$pid" 2>/dev/null || true
+            kill "$pid" 2>/dev/null || true
+        done
+        # Wait briefly then force-kill stragglers.
+        sleep 0.3
+        for pid in "${WORKER_PIDS[@]}"; do
+            kill -9 "$pid" 2>/dev/null || true
+        done
+    fi
 }
 
 trap 'cleanup' INT TERM
@@ -135,7 +168,8 @@ for dir in "$EXAMPLES_DIR"/*/; do
 done
 
 # Sort for deterministic order.
-mapfile -t examples < <(printf '%s\n' "${examples[@]}" | sort)
+# mapfile requires bash 4+; use a while-read loop for bash 3.2 compatibility.
+IFS=$'\n' read -r -d '' -a examples < <(printf '%s\n' "${examples[@]}" | sort; printf '\0') || true
 
 total=${#examples[@]}
 [[ $total -gt 0 ]] || die "No examples found to run"
@@ -295,12 +329,18 @@ PROMPT
 # Remove finished PIDs from the WORKER_PIDS array.
 reap_workers() {
     local alive=()
-    for pid in "${WORKER_PIDS[@]}"; do
-        if kill -0 "$pid" 2>/dev/null; then
-            alive+=("$pid")
-        fi
-    done
-    WORKER_PIDS=("${alive[@]+"${alive[@]}"}")
+    if [[ ${#WORKER_PIDS[@]} -gt 0 ]]; then
+        for pid in "${WORKER_PIDS[@]}"; do
+            if kill -0 "$pid" 2>/dev/null; then
+                alive+=("$pid")
+            fi
+        done
+    fi
+    if [[ ${#alive[@]} -gt 0 ]]; then
+        WORKER_PIDS=("${alive[@]}")
+    else
+        WORKER_PIDS=()
+    fi
 }
 
 # Wait until worker count drops below PARALLEL.
@@ -325,9 +365,11 @@ for name in "${examples[@]}"; do
 done
 
 # Wait for all remaining workers.
-for pid in "${WORKER_PIDS[@]}"; do
-    wait "$pid" 2>/dev/null || true
-done
+if [[ ${#WORKER_PIDS[@]} -gt 0 ]]; then
+    for pid in "${WORKER_PIDS[@]}"; do
+        wait "$pid" 2>/dev/null || true
+    done
+fi
 
 # ---------------------------------------------------------------------------
 # Collect results and print summary

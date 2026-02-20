@@ -821,8 +821,11 @@ func main() {
 				fn()
 			}
 		}
+
+		fmt.Println("=== All examples completed ===")
 	} else if fn, ok := examples[exampleName]; ok {
 		fn()
+		fmt.Println("=== All examples completed ===")
 	} else {
 		fmt.Printf("Unknown example: %s\n", exampleName)
 		fmt.Println("\nAvailable examples:")

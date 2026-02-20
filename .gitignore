@@ -41,3 +41,5 @@ bin/
 hello.txt
 safe_output/
 memory/
+important_config.txt
+regular_file.txt

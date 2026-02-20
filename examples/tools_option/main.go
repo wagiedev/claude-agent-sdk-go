@@ -115,10 +115,10 @@ func toolsArrayExample() {
 	fmt.Println()
 }
 
-// toolsEmptyArrayExample demonstrates disabling all tools with an empty array.
-func toolsEmptyArrayExample() {
-	fmt.Println("=== Tools Empty Array Example ===")
-	fmt.Println("Setting Tools=[] (no tools available)")
+// toolsSingleToolExample demonstrates restricting to a single tool.
+func toolsSingleToolExample() {
+	fmt.Println("=== Tools Single Tool Example ===")
+	fmt.Println("Setting Tools=['Read'] (only Read available)")
 	fmt.Println()
 
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
@@ -131,7 +131,7 @@ func toolsEmptyArrayExample() {
 
 	if err := client.Start(ctx,
 		claudesdk.WithLogger(logger),
-		claudesdk.WithTools(claudesdk.ToolsList{}),
+		claudesdk.WithTools(claudesdk.ToolsList{"Read"}),
 		claudesdk.WithMaxTurns(1),
 	); err != nil {
 		fmt.Printf("Failed to connect: %v\n", err)
@@ -233,7 +233,7 @@ func main() {
 
 	examples := map[string]func(){
 		"array":  toolsArrayExample,
-		"empty":  toolsEmptyArrayExample,
+		"single": toolsSingleToolExample,
 		"preset": toolsPresetExample,
 	}
 
@@ -241,7 +241,7 @@ func main() {
 		fmt.Println("Usage: go run main.go <example_name>")
 		fmt.Println("\nAvailable examples:")
 		fmt.Println("  array  - Restrict to specific tools (Read, Glob, Grep)")
-		fmt.Println("  empty  - Disable all tools with empty array")
+		fmt.Println("  single - Restrict to a single tool (Read)")
 		fmt.Println("  preset - Use claude_code preset for all default tools")
 
 		return
@@ -249,14 +249,21 @@ func main() {
 
 	exampleName := os.Args[1]
 
-	if fn, ok := examples[exampleName]; ok {
+	if exampleName == "all" {
+		for _, name := range []string{"array", "single", "preset"} {
+			examples[name]()
+			fmt.Println("--------------------------------------------------")
+			fmt.Println()
+		}
+	} else if fn, ok := examples[exampleName]; ok {
 		fn()
 	} else {
 		fmt.Printf("Error: Unknown example '%s'\n", exampleName)
 		fmt.Println("\nAvailable examples:")
 		fmt.Println("  array  - Restrict to specific tools")
-		fmt.Println("  empty  - Disable all tools")
+		fmt.Println("  single - Restrict to a single tool")
 		fmt.Println("  preset - Use claude_code preset")
+		fmt.Println("  all    - Run all examples")
 
 		os.Exit(1)
 	}

@@ -182,3 +182,21 @@ Sentinel errors: `ErrClientNotConnected`, `ErrClientAlreadyConnected`, `ErrClien
 ## Examples
 
 See the [examples](./examples) directory for complete working examples.
+
+### Testing Examples
+
+The `scripts/test_examples.sh` script runs all examples and uses Claude CLI to verify their output.
+
+```bash
+# Run all examples
+./scripts/test_examples.sh
+
+# Run specific examples
+./scripts/test_examples.sh -f hooks,sessions,tools_option
+
+# Keep going on failure
+./scripts/test_examples.sh -k
+
+# Adjust parallelism and timeout
+./scripts/test_examples.sh -n 3 -t 180
+```

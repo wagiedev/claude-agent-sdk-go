@@ -122,7 +122,10 @@ func (d *discoverer) findCLI() (string, error) {
 	commonPaths := []string{
 		"/usr/local/bin/claude",
 		"/usr/bin/claude",
-		filepath.Join(os.Getenv("HOME"), ".local/bin/claude"),
+	}
+
+	if homeDir, err := os.UserHomeDir(); err == nil {
+		commonPaths = append(commonPaths, filepath.Join(homeDir, ".local/bin/claude"))
 	}
 
 	for _, path := range commonPaths {

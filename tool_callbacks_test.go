@@ -380,13 +380,6 @@ func TestPermissionUpdateToDict(t *testing.T) {
 	require.Equal(t, "Read", rules[1]["toolName"])
 }
 
-// stringPtr returns a pointer to the given string.
-//
-//go:fix inline
-func stringPtr(s string) *string {
-	return new(s)
-}
-
 // TestMatcherMatching tests hook matcher functionality.
 func TestMatcherMatching(t *testing.T) {
 	bashTool := "Bash"

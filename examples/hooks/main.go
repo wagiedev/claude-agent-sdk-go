@@ -344,7 +344,7 @@ func exampleDecisionFields() {
 
 	if err := client.Start(ctx,
 		claudesdk.WithLogger(logger),
-		claudesdk.WithAllowedTools(writeToolName, bashToolName),
+		claudesdk.WithTools(claudesdk.ToolsList{writeToolName}),
 		claudesdk.WithModel("claude-sonnet-4-5-20250929"),
 		claudesdk.WithPermissionMode("bypassPermissions"),
 		claudesdk.WithHooks(map[claudesdk.HookEvent][]*claudesdk.HookMatcher{
@@ -474,13 +474,6 @@ func exampleContinueControl() {
 	}
 
 	fmt.Println()
-}
-
-// ptr is a helper to create pointers to string values.
-//
-//go:fix inline
-func ptr(s string) *string {
-	return new(s)
 }
 
 func main() {

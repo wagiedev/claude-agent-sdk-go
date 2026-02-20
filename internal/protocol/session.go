@@ -197,6 +197,16 @@ func (s *Session) GetInitializationResult() map[string]any {
 	return maps.Clone(s.initializationResult)
 }
 
+// GetSDKMCPServerNames returns the names of all registered in-process SDK MCP servers.
+func (s *Session) GetSDKMCPServerNames() []string {
+	names := make([]string, 0, len(s.sdkMcpServers))
+	for name := range s.sdkMcpServers {
+		names = append(names, name)
+	}
+
+	return names
+}
+
 // HandleHookCallback handles hook_callback control requests from the CLI.
 // The CLI sends callback_id which we use to look up the registered callback.
 func (s *Session) HandleHookCallback(

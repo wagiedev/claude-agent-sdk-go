@@ -10,12 +10,8 @@ import (
 	claudesdk "github.com/wagiedev/claude-agent-sdk-go"
 )
 
-//go:fix inline
-func ptrString(s string) *string {
-	return new(s)
-}
-
 // displayMessage standardizes message display across examples.
+// Handles agent responses which appear as ToolResultBlocks containing TextBlocks.
 func displayMessage(msg claudesdk.Message) {
 	switch m := msg.(type) {
 	case *claudesdk.UserMessage:
@@ -27,8 +23,17 @@ func displayMessage(msg claudesdk.Message) {
 
 	case *claudesdk.AssistantMessage:
 		for _, block := range m.Content {
-			if textBlock, ok := block.(*claudesdk.TextBlock); ok {
-				fmt.Printf("Claude: %s\n", textBlock.Text)
+			switch b := block.(type) {
+			case *claudesdk.TextBlock:
+				fmt.Printf("Claude: %s\n", b.Text)
+			case *claudesdk.ToolUseBlock:
+				fmt.Printf("[Agent dispatch: %s]\n", b.Name)
+			case *claudesdk.ToolResultBlock:
+				for _, inner := range b.Content {
+					if textBlock, ok := inner.(*claudesdk.TextBlock); ok {
+						fmt.Printf("Agent: %s\n", textBlock.Text)
+					}
+				}
 			}
 		}
 
@@ -57,13 +62,13 @@ func codeReviewerExample() {
 
 	if err := client.Start(ctx,
 		claudesdk.WithLogger(logger),
+		claudesdk.WithMaxTurns(2),
 		claudesdk.WithAgents(map[string]*claudesdk.AgentDefinition{
 			"code-reviewer": {
 				Description: "Reviews code for best practices and potential issues",
-				Prompt: "You are a code reviewer. Analyze code for bugs, performance issues, " +
-					"security vulnerabilities, and adherence to best practices. " +
-					"Provide constructive feedback.",
-				Tools: []string{"Read", "Grep"},
+				Prompt: "You are a code reviewer. Be very concise. " +
+					"Give a 2-3 bullet point review only.",
+				Tools: []string{"Read"},
 				Model: new("sonnet"),
 			},
 		}),
@@ -74,7 +79,7 @@ func codeReviewerExample() {
 		return
 	}
 
-	prompt := "Use the code-reviewer agent to review the code in internal/types/types.go"
+	prompt := "Use the code-reviewer agent to review errors.go. Be very brief, 2-3 bullets max."
 	if err := client.Query(ctx, prompt); err != nil {
 		fmt.Printf("Failed to send query: %v\n", err)
 
@@ -109,13 +114,12 @@ func documentationWriterExample() {
 
 	if err := client.Start(ctx,
 		claudesdk.WithLogger(logger),
+		claudesdk.WithMaxTurns(2),
 		claudesdk.WithAgents(map[string]*claudesdk.AgentDefinition{
 			"doc-writer": {
-				Description: "Writes comprehensive documentation",
-				Prompt: "You are a technical documentation expert. Write clear, comprehensive " +
-					"documentation with examples. Focus on clarity and completeness.",
-				Tools: []string{"Read", "Write", "Edit"},
-				Model: new("sonnet"),
+				Description: "Writes concise documentation",
+				Prompt:      "You are a documentation expert. Be very concise.",
+				Model:       new("sonnet"),
 			},
 		}),
 		claudesdk.WithPermissionMode("bypassPermissions"),
@@ -125,7 +129,7 @@ func documentationWriterExample() {
 		return
 	}
 
-	prompt := "Use the doc-writer agent to explain what AgentDefinition is used for"
+	prompt := "Use the doc-writer agent to write a one-sentence description of what a Go struct is"
 	if err := client.Query(ctx, prompt); err != nil {
 		fmt.Printf("Failed to send query: %v\n", err)
 
@@ -160,16 +164,15 @@ func multipleAgentsExample() {
 
 	if err := client.Start(ctx,
 		claudesdk.WithLogger(logger),
+		claudesdk.WithMaxTurns(2),
 		claudesdk.WithAgents(map[string]*claudesdk.AgentDefinition{
 			"analyzer": {
-				Description: "Analyzes code structure and patterns",
-				Prompt:      "You are a code analyzer. Examine code structure, patterns, and architecture.",
-				Tools:       []string{"Read", "Grep", "Glob"},
+				Description: "Analyzes code structure",
+				Prompt:      "You are a code analyzer. Be very concise.",
 			},
 			"tester": {
 				Description: "Creates and runs tests",
-				Prompt:      "You are a testing expert. Write comprehensive tests and ensure code quality.",
-				Tools:       []string{"Read", "Write", "Bash"},
+				Prompt:      "You are a testing expert. Be very concise.",
 				Model:       new("sonnet"),
 			},
 		}),
@@ -184,7 +187,7 @@ func multipleAgentsExample() {
 		return
 	}
 
-	prompt := "Use the analyzer agent to find all Go files in the examples/ directory"
+	prompt := "Use the analyzer agent to explain what table-driven tests are in Go in one sentence"
 	if err := client.Query(ctx, prompt); err != nil {
 		fmt.Printf("Failed to send query: %v\n", err)
 

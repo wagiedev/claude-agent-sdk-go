@@ -38,15 +38,17 @@ func displayMessage(msg claudesdk.Message) {
 }
 
 // continueConversationExample demonstrates multi-turn conversation in a single session.
-// Uses WithContinueConversation to maintain context across queries.
+// Captures the session ID from the first query and uses WithResume to maintain context.
 func continueConversationExample() {
 	fmt.Println("=== Continue Conversation Example ===")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
-	// First query - establish context
+	// First query - establish context and capture session ID
 	fmt.Println("\n--- First query: Establish context ---")
+
+	var sessionID string
 
 	for msg, err := range claudesdk.Query(ctx, "Remember: my favorite color is blue",
 		claudesdk.WithContinueConversation(true),
@@ -59,13 +61,24 @@ func continueConversationExample() {
 		}
 
 		displayMessage(msg)
+
+		if result, ok := msg.(*claudesdk.ResultMessage); ok {
+			sessionID = result.SessionID
+			fmt.Printf("Captured Session ID: %s\n", sessionID)
+		}
 	}
 
-	// Second query - verify memory
+	if sessionID == "" {
+		fmt.Println("Failed to capture session ID")
+
+		return
+	}
+
+	// Second query - resume session to verify memory
 	fmt.Println("\n--- Second query: Verify memory ---")
 
 	for msg, err := range claudesdk.Query(ctx, "What is my favorite color?",
-		claudesdk.WithContinueConversation(true),
+		claudesdk.WithResume(sessionID),
 		claudesdk.WithMaxTurns(1),
 	) {
 		if err != nil {
@@ -94,7 +107,6 @@ func resumeSessionExample() {
 	var sessionID string
 
 	for msg, err := range claudesdk.Query(ctx, "Remember: x = 42",
-		claudesdk.WithContinueConversation(true),
 		claudesdk.WithMaxTurns(1),
 	) {
 		if err != nil {
@@ -150,8 +162,7 @@ func forkSessionExample() {
 
 	var sessionID string
 
-	for msg, err := range claudesdk.Query(ctx, "We're planning a trip to Paris",
-		claudesdk.WithContinueConversation(true),
+	for msg, err := range claudesdk.Query(ctx, "Remember: the project language is Python",
 		claudesdk.WithMaxTurns(1),
 	) {
 		if err != nil {
@@ -178,7 +189,7 @@ func forkSessionExample() {
 	// Fork to explore alternative - creates a new session branched from original
 	fmt.Println("\n--- Second query: Fork session to explore alternative ---")
 
-	for msg, err := range claudesdk.Query(ctx, "Actually, let's consider Tokyo instead",
+	for msg, err := range claudesdk.Query(ctx, "Actually, let's use Rust instead",
 		claudesdk.WithResume(sessionID),
 		claudesdk.WithForkSession(true),
 		claudesdk.WithMaxTurns(1),
@@ -192,10 +203,10 @@ func forkSessionExample() {
 		displayMessage(msg)
 	}
 
-	// Original session unchanged - should still remember Paris
-	fmt.Println("\n--- Third query: Original session unchanged (should say Paris) ---")
+	// Original session unchanged - should still remember Python
+	fmt.Println("\n--- Third query: Original session unchanged (should say Python) ---")
 
-	for msg, err := range claudesdk.Query(ctx, "What city are we visiting?",
+	for msg, err := range claudesdk.Query(ctx, "What is the project language?",
 		claudesdk.WithResume(sessionID),
 		claudesdk.WithMaxTurns(1),
 	) {

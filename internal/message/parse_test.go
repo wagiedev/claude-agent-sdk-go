@@ -141,8 +141,3 @@ func TestParseAssistantMessage(t *testing.T) {
 		})
 	}
 }
-
-//go:fix inline
-func strPtr(s string) *string {
-	return new(s)
-}

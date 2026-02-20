@@ -618,6 +618,20 @@ func (c *Client) GetMCPStatus(ctx context.Context) (*mcp.Status, error) {
 		return nil, fmt.Errorf("unmarshal mcp status: %w", err)
 	}
 
+	// Append in-process SDK MCP servers that the CLI doesn't know about.
+	c.mu.Lock()
+	session := c.session
+	c.mu.Unlock()
+
+	if session != nil {
+		for _, name := range session.GetSDKMCPServerNames() {
+			status.MCPServers = append(status.MCPServers, mcp.ServerStatus{
+				Name:   name,
+				Status: "connected",
+			})
+		}
+	}
+
 	return &status, nil
 }
 

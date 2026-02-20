@@ -145,10 +145,10 @@ func main() {
 	fmt.Printf("Total messages: %d\n", len(messageTypes))
 
 	// Validate the results
-	// Note: types show as *types.X because claudesdk re-exports from internal/types
-	hasInit := containsMessageType(messageTypes, "*types.SystemMessage")
-	hasAssistant := containsMessageType(messageTypes, "*types.AssistantMessage")
-	hasResult := containsMessageType(messageTypes, "*types.ResultMessage")
+	// Note: types show as *message.X because claudesdk type-aliases from internal/message
+	hasInit := containsMessageType(messageTypes, "*message.SystemMessage")
+	hasAssistant := containsMessageType(messageTypes, "*message.AssistantMessage")
+	hasResult := containsMessageType(messageTypes, "*message.ResultMessage")
 	hasTestAgent := containsAgent(agentsFound, "test-agent")
 
 	fmt.Println()
